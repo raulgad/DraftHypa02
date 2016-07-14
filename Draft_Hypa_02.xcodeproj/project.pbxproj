@@ -297,6 +297,7 @@
 				0450CDE41D338E7600C07D7A /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
