@@ -12,11 +12,11 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     var prelude: UIView!
     var answerTop: UIView!
     var answerBottom: UIView!
+    var lastPanView: UIView = UIView()
 
-    var defaultViewCenter: CGPoint!
+    var defaultViewCenter: [CGPoint] = []
     
     var animator: UIDynamicAnimator!
-    //var dynamicItemBehavior: UIDynamicItemBehavior!
     
     var preludePanGestureRecognizer: UIPanGestureRecognizer!
     var answerTopPanGestureRecognizer: UIPanGestureRecognizer!
@@ -27,7 +27,9 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         
         initViews()
         createConstrants()
+        
         animator = UIDynamicAnimator(referenceView: view)
+        //animator.setValue(true, forKey: "debugEnabled")
         
         //Create UIPanGestureRecognizer
         preludePanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan(pan:)))
@@ -49,10 +51,16 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         prelude.isExclusiveTouch = true
         answerTop.isExclusiveTouch = true
         answerBottom.isExclusiveTouch = true
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         
-        //FIXME: Not sure this assignments should be there, maybe in pan.ended
-        //Set UIDynamicItemBehavior to views
-        
+        //Set defaultViewCenter
+        //FIXME: Not in the right place (viewDidAppear). And hardcode linking between array's index and view's tag
+        defaultViewCenter.append(prelude.center)
+        defaultViewCenter.append(answerTop.center)
+        defaultViewCenter.append(answerBottom.center)
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -63,10 +71,6 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         return true
     }
     
-//    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-//        return (animator.isRunning ? false : true)
-//    }
-    
     func pan(pan: UIPanGestureRecognizer) {
         let translation = pan.translation(in: self.view)
         guard let panView = pan.view else {
@@ -76,12 +80,11 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         
         switch pan.state {
             case .began:
-                //FIXME: Hardcoding
-                defaultViewCenter = panView.center //CGPoint(x: 160, y: 108)
-                //animator.removeAllBehaviors()
+                //Set previus touched view to init position if user starts touching view due snaping
+                lastPanView.center = defaultViewCenter[lastPanView.tag]
+                
+                animator.removeAllBehaviors()
             
-                //print(".began animator.behaviors: \(animator.behaviors)")
-
             case .changed:
                 panView.center = CGPoint(x: panView.center.x + translation.x, y: panView.center.y)
                 pan.setTranslation(CGPoint.zero, in: panView)
@@ -93,18 +96,12 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
                 animator.addBehavior(dynamicItemBehavior)
                 
                 //Set UISnapBehavior to views
-                let snapBehavior = UISnapBehavior(item: panView, snapTo: defaultViewCenter)
+                let snapBehavior = UISnapBehavior(item: panView, snapTo: defaultViewCenter[panView.tag])
                 snapBehavior.damping = 0.15
                 animator.addBehavior(snapBehavior)
-
             
-//                snapBehavior.action = {
-//                    print(panView.center)
-//                }
-            
-            
-                //print(".ended animator.behaviors: \(animator.behaviors)")
-                //print("________________________________________________")
+                lastPanView = panView
+                lastPanView.tag = panView.tag
             
             default: ()
         }
@@ -115,6 +112,12 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         prelude = UIView()
         answerTop = UIView()
         answerBottom = UIView()
+        
+        //FIXME: Hardcoding view's tag
+        //Set tag
+        prelude.tag = 0
+        answerTop.tag = 1
+        answerBottom.tag = 2
         
         //Prepare Auto Layout
         prelude.translatesAutoresizingMaskIntoConstraints = false
@@ -158,6 +161,5 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         //Adding to super view
         self.view.addConstraints([pinLeftPrelude, pinTopPrelude, pinRightPrelude, heightPrelude, pinLeftAnswerTop, pinRightAnswerTop, heightAnswerTop, topMarginAnswerTopToPrelude, pinLeftAnswerBottom, pinRightAnswerBottom, topMarginAnswerBottomToAnswerTop, heightAnswerBottom])
     }
-    
 }
 
