@@ -9,7 +9,12 @@
 import UIKit
 
 class ViewController: UIViewController{
-    var preludeView: UIView!
+    var myView: UIView!
+    
+    var animator: UIDynamicAnimator!
+    var attachmentBehavior: UIAttachmentBehavior!
+    
+    var panGestureRecognizer: UIPanGestureRecognizer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -17,37 +22,48 @@ class ViewController: UIViewController{
         initViews()
         createConstrants()
         
-        let panGestureRecognizer = UIPanGestureRecognizer(target: self, action: Selector(("handleTap:")))
-        preludeView.addGestureRecognizer(panGestureRecognizer)
+        panGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan(pan:)))
+        myView.addGestureRecognizer(panGestureRecognizer)
     }
     
-    func handleTap(recognizer: UIPanGestureRecognizer) {
-        print("WORKING!!!!")
-    }
-   
-    func initViews() {
-        //Init
-        preludeView = UIView()
+    func pan(pan: UIPanGestureRecognizer) {
+        guard let panView = pan.view else {
+            print("Error with unwrap pan.view")
+            return
+        }
+        let location = pan.location(in: self.view)
         
-        //Prepare Auto Layout
-        preludeView.translatesAutoresizingMaskIntoConstraints = false
-        
-        //Set background color
-        preludeView.backgroundColor = UIColor.blue()
-        
-        //Add to super view
-        self.view.addSubview(preludeView)
-    }
+        switch pan.state {
+            case .began:
+                if #available(iOS 9.0, *) {
+                    let dynamicItemBehavior = UIDynamicItemBehavior(items: [myView])
+                    dynamicItemBehavior.allowsRotation = false
+                    animator.addBehavior(dynamicItemBehavior)
 
+                    attachmentBehavior = UIAttachmentBehavior(item: panView, attachedToAnchor: location)
+                    attachmentBehavior.frictionTorque = 1.0
+                    animator.addBehavior(attachmentBehavior)
+                    print(attachmentBehavior.frictionTorque)
+                } else {
+                    // Fallback on earlier versions
+                }
+            
+            case .changed:
+                attachmentBehavior.anchorPoint = location
+                
+            case .cancelled, .ended:
+                animator.removeAllBehaviors()
+                
+            default: ()
+        }
+    }
+    
+    func initViews() {
+        ...
+    }
+    
     func createConstrants() {
-        //Create constrants preludeView
-        let pinLeftPreludeView = NSLayoutConstraint(item: preludeView, attribute: NSLayoutAttribute.left, relatedBy: NSLayoutRelation.equal, toItem: self.view, attribute: NSLayoutAttribute.left, multiplier: 1.0, constant: 0)
-        let pinTopPreludeView = NSLayoutConstraint(item: preludeView, attribute: NSLayoutAttribute.top, relatedBy: NSLayoutRelation.equal, toItem: self.view, attribute: NSLayoutAttribute.top, multiplier: 1.0, constant: 24)
-        let pinRightPreludeView = NSLayoutConstraint(item: preludeView, attribute: NSLayoutAttribute.right, relatedBy: NSLayoutRelation.equal, toItem: self.view, attribute: NSLayoutAttribute.right, multiplier: 1.0, constant: 0)
-        let heightPreludeView = NSLayoutConstraint(item: preludeView, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.equal, toItem: self.view, attribute: NSLayoutAttribute.height, multiplier: 0.35, constant: 0)
-        
-        //Adding to super view
-        self.view.addConstraints([pinLeftPreludeView, pinTopPreludeView, pinRightPreludeView, heightPreludeView])
+        ...
     }
 }
 

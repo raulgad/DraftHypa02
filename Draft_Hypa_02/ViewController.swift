@@ -17,6 +17,11 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
     var defaultViewCenter: [CGPoint] = []
     
     var animator: UIDynamicAnimator!
+    var attachmentBehavior1: UIAttachmentBehavior!
+    var attachmentBehavior2: UIAttachmentBehavior!
+    var attachmentBehavior3: UIAttachmentBehavior!
+    var limitBehavior1: UIAttachmentBehavior!
+    var limitBehavior2: UIAttachmentBehavior!
     
     var preludePanGestureRecognizer: UIPanGestureRecognizer!
     var answerTopPanGestureRecognizer: UIPanGestureRecognizer!
@@ -29,7 +34,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
         createConstrants()
         
         animator = UIDynamicAnimator(referenceView: view)
-        //animator.setValue(true, forKey: "debugEnabled")
+        animator.setValue(true, forKey: "debugEnabled")
         
         //Create UIPanGestureRecognizer
         preludePanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan(pan:)))
@@ -77,31 +82,67 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             print("Error with unwrap pan.view")
             return
         }
+        let location = pan.location(in: self.view)
         
         switch pan.state {
             case .began:
                 //Set previus touched view to init position if user starts touching view due snaping
-                lastPanView.center = defaultViewCenter[lastPanView.tag]
+//                lastPanView.center = defaultViewCenter[lastPanView.tag]
                 
-                animator.removeAllBehaviors()
+//                animator.removeAllBehaviors()
+                if #available(iOS 9.0, *) {
+//                    let dynamicItemBehavior = UIDynamicItemBehavior(items: [prelude, answerTop, answerBottom])
+//                    dynamicItemBehavior.allowsRotation = false
+//                    animator.addBehavior(dynamicItemBehavior)
+//
+//                    limitBehavior1 = UIAttachmentBehavior.limitAttachment(with: panView, offsetFromCenter: UIOffsetZero, attachedTo: answerTop, offsetFromCenter: UIOffsetZero)
+//                    limitBehavior1.length = 150
+//                    animator.addBehavior(limitBehavior1)
+//                    
+//                    limitBehavior2 = UIAttachmentBehavior.limitAttachment(with: answerTop, offsetFromCenter: UIOffsetZero, attachedTo: answerBottom, offsetFromCenter: UIOffsetZero)
+//                    limitBehavior2.length = 150
+//                    animator.addBehavior(limitBehavior2)
+//
+//                    attachmentBehavior1 = UIAttachmentBehavior.slidingAttachment(with: answerTop, attachedTo: answerBottom, attachmentAnchor: location, axisOfTranslation: CGVector(dx: 0, dy: 1))
+//                    animator.addBehavior(attachmentBehavior1)
+//
+                    //MARK: It is important to a certain order that you link views (panView to answerTop, then answerBottom to answerTop). You can not links two views by one UIAttachmentBehavior you need separate UIAttachmentBehavior that would setting just for one view and anchor point.
+                    attachmentBehavior1 = UIAttachmentBehavior.fixedAttachment(with: panView, attachedTo: answerTop, attachmentAnchor: location)
+                    animator.addBehavior(attachmentBehavior1)
+                    attachmentBehavior2 = UIAttachmentBehavior.fixedAttachment(with: answerBottom, attachedTo: answerTop, attachmentAnchor: location)
+                    animator.addBehavior(attachmentBehavior2)
+                    attachmentBehavior3 = UIAttachmentBehavior(item: panView, attachedToAnchor: location)
+                    animator.addBehavior(attachmentBehavior3)
+                } else {
+                    // Fallback on earlier versions
+                }
+            
+            
             
             case .changed:
-                panView.center = CGPoint(x: panView.center.x + translation.x, y: panView.center.y)
-                pan.setTranslation(CGPoint.zero, in: panView)
+                attachmentBehavior3.anchorPoint = location
+//                attachmentBehavior2.anchorPoint = location
+//                attachmentBehavior3.anchorPoint = location
+                    //CGPoint(x: location.x, y: panView.center.y)
+//                panView.center = CGPoint(x: panView.center.x + translation.x, y: panView.center.y)
+//                panView.center = CGPoint(x: panView.center.x + translation.x, y: panView.center.y + translation.y)
+//                pan.setTranslation(CGPoint.zero, in: panView)
+//                animator.updateItem(usingCurrentState: panView)
             
             case .cancelled, .ended:
-                //Add UIDynamicItemBehavior to animator
-                let dynamicItemBehavior = UIDynamicItemBehavior(items: [panView])
-                dynamicItemBehavior.allowsRotation = false
-                animator.addBehavior(dynamicItemBehavior)
-                
-                //Set UISnapBehavior to views
-                let snapBehavior = UISnapBehavior(item: panView, snapTo: defaultViewCenter[panView.tag])
-                snapBehavior.damping = 0.15
-                animator.addBehavior(snapBehavior)
-            
-                lastPanView = panView
-                lastPanView.tag = panView.tag
+                animator.removeAllBehaviors()
+//                //Add UIDynamicItemBehavior to animator
+//                let dynamicItemBehavior = UIDynamicItemBehavior(items: [panView])
+//                dynamicItemBehavior.allowsRotation = false
+//                animator.addBehavior(dynamicItemBehavior)
+//
+//                //Set UISnapBehavior to views
+//                let snapBehavior = UISnapBehavior(item: panView, snapTo: defaultViewCenter[panView.tag])
+//                snapBehavior.damping = 0.15
+//                animator.addBehavior(snapBehavior)
+//
+//                lastPanView = panView
+//                lastPanView.tag = panView.tag
             
             default: ()
         }
