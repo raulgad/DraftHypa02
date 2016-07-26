@@ -19,8 +19,8 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
 
     var defaultViewsCenter: [CGPoint] = []
     var offset = CGPoint.zero
-    var attachmentDistance: CGFloat = 80
-    var passedAttachmentPoints: Int = 1
+    var distanceLinkedViews: CGFloat = 30
+    var previousPassedTranslationX: CGFloat = CGFloat(0)
     
     var animator: UIDynamicAnimator!
     var attachmentBehavior: UIAttachmentBehavior!
@@ -103,97 +103,58 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
             print("Error with unwrap pan.view")
             return
         }
-        let location = pan.location(in: view)
-        print(translation.x)
+        var location = pan.location(in: view)
         
         switch pan.state {
             case .began:
-                //Set previus touched view to init position if user starts touching view due snaping
-//                lastTouchedView.center = defaultViewsCenter[lastTouchedView.tag]
-                
                 //Set previous touched views to init default positions is user starts touching view due snaping
                 //FIXME: Cycles in this function is not a good idea?
                 for view in views {
                     view.center = defaultViewsCenter[view.tag]
                 }
                 
-                animator.removeAllBehaviors()
+                //Set X offset of touched location and touched view's center
+                let touchedViewCenter = touchedView.center
+                offset.x = location.x - touchedViewCenter.x
                 
-                let dynamicItemBehavior = UIDynamicItemBehavior(items: views)
-                dynamicItemBehavior.allowsRotation = false
-                animator.addBehavior(dynamicItemBehavior)
-//                let panViewCenter = panView.center
-//                offset.x = location.x - panViewCenter.x
-//                offset.y = location.y - panViewCenter.y
-                
-                if #available(iOS 9.0, *) {
-                    attachmentBehavior = UIAttachmentBehavior.slidingAttachment(with: touchedView, attachmentAnchor: location, axisOfTranslation: CGVector(dx: 0, dy: 1))
-                    animator.addBehavior(attachmentBehavior)
-                } else { }
-                
-                attachmentDistance = 80
-                passedAttachmentPoints = 1
+                //Set first translation of linked views to default value
+                previousPassedTranslationX = CGFloat(0)
             
-                if translation.x < 0 {
-                    if #available(iOS 9.0, *) {
-                        //FIXME: 1) Vague appeal views[view.tag + 1]  2) Ugly "if pyramid"
-                        for view in views {
-                            if view.tag < (views.count - 1) {
-                                let slidingAttachment = UIAttachmentBehavior.slidingAttachment(with: view, attachedTo: views[view.tag + 1], attachmentAnchor: views[view.tag + 1].center, axisOfTranslation: CGVector(dx: 0, dy: 1))
-                                animator.addBehavior(slidingAttachment)
-                            }
-                        }
-                    } else { }
-                }
-
+                animator.removeAllBehaviors()
             
             case .changed:
-//                panView.center = CGPoint(x: panView.center.x + translation.x, y: panView.center.y)
-//                pan.setTranslation(CGPoint.zero, in: panView)
-//
-//                if location.x > 30 {
-//                    for view in views {
-//                        if view != panView {
-//                            view.center = CGPoint(x: view.center.x + translation.x, y: view.center.y)
-//                            pan.setTranslation(CGPoint.zero, in: view)
-//                        }
-//                    }
-//                }
-//                location.x -= offset.x
-//                location.y -= offset.y
-            
-                // Bound the item position inside the reference view.
-//                location.x = max(0, location.x)
-//                location.x = min(view.bounds.width, location.x)
-//                location.y = max(0, location.y)
-//                location.y = min(view.bounds.height, location.y)
-            
-//                panView.center = location
-                attachmentBehavior.anchorPoint = location
-            
-                //FIXME: 1) Ugly "if-pyramid" 2) Copypaste slidingAttachment
-                if translation.x > attachmentDistance {
-                    if #available(iOS 9.0, *) {
-                        //FIXME: 1) Vague appeal "views[touchedView.tag - (passedTranslationPoins - 1)]"  2) Creating slidingAttachment behaviors with same variable name
-                        //MARK: Why fixAttachmentBehavior does not work with "dynamicItemBehavior.allowsRotation = false" and all work fine with slidingAttachment?
-                        if touchedView.tag - passedAttachmentPoints >= 0 {
-                            let slidingAttachment = UIAttachmentBehavior.slidingAttachment(with: views[touchedView.tag - passedAttachmentPoints], attachedTo: views[touchedView.tag - (passedAttachmentPoints - 1)], attachmentAnchor: views[touchedView.tag - (passedAttachmentPoints - 1)].center, axisOfTranslation: CGVector(dx: 0, dy: 1))
-                            animator.addBehavior(slidingAttachment)
+                //Moving touched view considering offset
+                location.x -= offset.x
+                location.y = defaultViewsCenter[touchedView.tag].y
+                touchedView.center = location
+                
+                //FIXME: Ugly "if pyramid"
+                //Linking views for sliding
+                if translation.x > distanceLinkedViews {
+                    let passedPoints = Int(translation.x / distanceLinkedViews)
+                    for passedPoint in 1...passedPoints {
+                        //FIXME: Ugly "if statements"
+                        if touchedView.tag - passedPoint >= 0 {
+                            //FIXME: Vague appeal "x: (views[touchedView.tag - passedAttachmentPoints].center.x + (passedTranslation.x - previousPassedTranslationX))"
+                            views[touchedView.tag - passedPoint].center = CGPoint(x: (views[touchedView.tag - passedPoint].center.x + (translation.x - previousPassedTranslationX)), y: defaultViewsCenter[touchedView.tag - passedPoint].y)
                         }
-                        if touchedView.tag + passedAttachmentPoints < views.count {
-                            let slidingAttachment = UIAttachmentBehavior.slidingAttachment(with: views[touchedView.tag + passedAttachmentPoints], attachedTo: views[touchedView.tag + (passedAttachmentPoints - 1)], attachmentAnchor: views[touchedView.tag + (passedAttachmentPoints - 1)].center, axisOfTranslation: CGVector(dx: 0, dy: 1))
-                            animator.addBehavior(slidingAttachment)
+                        if touchedView.tag + passedPoint < views.count {
+                            views[touchedView.tag + passedPoint].center = CGPoint(x: (views[touchedView.tag + passedPoint].center.x + (translation.x - previousPassedTranslationX)), y: defaultViewsCenter[touchedView.tag + passedPoint].y)
                         }
-                    } else { }
-                    
-                    print("passedTranslationPoins: \(passedAttachmentPoints)")
-                    attachmentDistance += 80
-                    passedAttachmentPoints += 1
+                    }
                 }
-            
+                if translation.x < 0 {
+                    for view in views {
+                        view.center = CGPoint(x: (view.center.x + (translation.x - previousPassedTranslationX)), y: defaultViewsCenter[view.tag].y)
+                    }
+                }
+                
+                //Saving current translation pass for translation movement
+                previousPassedTranslationX = translation.x
             
             case .cancelled, .ended:
                 animator.removeAllBehaviors()
+                
                 //MARK: Be carefull behaviors will affect to all views of your dynamicItemBehaviors, eg snapBehavior affect to all views when it active
                 //Add UIDynamicItemBehavior to animator
                 let dynamicItemBehavior = UIDynamicItemBehavior(items: views)
@@ -205,7 +166,7 @@ class ViewController: UIViewController, UIGestureRecognizerDelegate{
                 //Set UISnapBehavior to views
                 for view in views {
                     let snapBehavior = UISnapBehavior(item: view, snapTo: defaultViewsCenter[view.tag])
-                    snapBehavior.damping = 0.15
+                    snapBehavior.damping = 10
                     animator.addBehavior(snapBehavior)
                 }
             
