@@ -14,6 +14,7 @@ class Cards {
     private static var item: Int = 0
     
     var content: UIView
+    //Parameter "defaultCenter" not in the right place 
     var defaultCenter: CGPoint
     let item: Int = Cards.item
     
