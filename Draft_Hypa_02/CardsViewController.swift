@@ -10,16 +10,19 @@ import UIKit
 //FIXME: Check and set all variables to 'weak || owned' property
 class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
     var score: Int = 0
-    static var taskOperation = Operation.Multiply
-    var nextTask = Task(score: 1)
+    var taskComplexity: Int = 0
+    static var taskOperation = Operation.Division
+    var currentTask = Task(complexity: 0)
+    var nextTask = Task(complexity: 1)
     let cardsCount: Int = 3
+    let distanceForSlidingCard: CGFloat = -200
     var cards = [Card]()
     var cardsViews = [UIView]()
 
     var offsetBetweenTouchAndCardCenter = CGPoint.zero
     var xDistanceBetweenCards: CGFloat = 120
     var previousPassedTranslationX: CGFloat = CGFloat(0)
-    var snapBehaviorDamping: CGFloat = 0.25
+    var snapBehaviorDamping: CGFloat = 0.250
     
     var animator: UIDynamicAnimator! 
     var cardPanGestureRecognizer: UIPanGestureRecognizer!
@@ -38,7 +41,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
             cards.append(card)
             
             //Get init task's text for cards
-            card.label.text = nextTask.getLabel(to: card)
+            card.label.text = currentTask.getLabel(to: card)
             
             //Set UIPanGestureRecognizer to cards except task's card (top card)
             cardPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan(pan:)))
@@ -52,7 +55,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
         
         createConstrants()
         
-        print("\(score) : score in viewDidload")
     }
     
     //FIXME: It should be in Card's class, and use UIStackView.
@@ -83,7 +85,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
             card.defaultCenter = card.content.center
         }
         
-        print("\(score) : score in viewDidAppear")
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -96,7 +97,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
     
     func pan(pan: UIPanGestureRecognizer) {
         let translation = pan.translation(in: self.view)
-        guard let touchedView = pan.view else {
+        guard let touchedCard = pan.view else {
             print("Error with unwrap pan.view")
             return
         }
@@ -109,7 +110,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
                 for card in cards { card.content.center = card.defaultCenter }
 
                 //Set X offset of touched location and touched card's center
-                offsetBetweenTouchAndCardCenter.x = location.x - touchedView.center.x
+                offsetBetweenTouchAndCardCenter.x = location.x - touchedCard.center.x
                 
                 //Set first translation of linked cards to default value
                 previousPassedTranslationX = CGFloat(0)
@@ -119,8 +120,8 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
             case .changed:
                 //Moving touched card considering offset
                 location.x -= offsetBetweenTouchAndCardCenter.x
-                location.y = cards[touchedView.tag].defaultCenter.y
-                touchedView.center = location
+                location.y = cards[touchedCard.tag].defaultCenter.y
+                touchedCard.center = location
                 let translationOffset = translation.x - previousPassedTranslationX
                 
                 //Moving linked cards
@@ -129,7 +130,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
                     //Calcute number of times that card passed xDistanceBetweenCards
                     let passedPoints = Int(translation.x / xDistanceBetweenCards)
                     
-                    moveCardsWithLag(touchedView, passedPoints, translationOffset)
+                    moveCardsWithLag(touchedCard, passedPoints, translationOffset)
                 }
                 //Move to left
                 if translation.x < 0 {
@@ -160,14 +161,23 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
                     animator.addBehavior(snapBehavior)
                 }
                 
-                //Slide away cards
-                //FIXME: Hardcode values "left", "right", "200, -200"
-                //Slide away to right
-                if translation.x > 200 {
+                //FIXME: Hardcode values "left", "right", distanceForSlidingCard
+                //Slide away cards to right
+                if translation.x > abs(distanceForSlidingCard) {
+                    //Check answer and edit score
+                    if currentTask.checkAnswer(touchedCard: touchedCard.item) {
+                        score += 1
+                        taskComplexity += 1
+                        print("Correct answer :)")
+                    } else {
+                        print("Wrong result :(")
+                    }
+                    
                     slideAwayCards(to: "right")
                 }
-                //Slide away to left
-                else if translation.x < -200 {
+                //Slide away cards to left
+                else if translation.x < distanceForSlidingCard {
+                    taskComplexity += 1
                     slideAwayCards(to: "left")
                 }
             
@@ -175,23 +185,22 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
         }
     }
     
-    func moveCardsWithLag(_ touchedView: UIView, _ passedPoints: Int, _ translationOffset: CGFloat) {
+    func moveCardsWithLag(_ touchedCard: UIView, _ passedPoints: Int, _ translationOffset: CGFloat) {
         //Moving linked cards
         for passedPoint in 1...passedPoints {
-            if touchedView.tag - passedPoint >= 0 {
+            if touchedCard.tag - passedPoint >= 0 {
                 //FIXME: Hardcode "cards[touchedView.tag - passedPoint]"
-                unowned let cardAbove = cards[touchedView.tag - passedPoint]
+                unowned let cardAbove = cards[touchedCard.tag - passedPoint]
                 cardAbove.content.center = CGPoint(x: (cardAbove.content.center.x + translationOffset), y: cardAbove.defaultCenter.y)
             }
-            if touchedView.tag + passedPoint < cards.count {
-                unowned let cardUnder = cards[touchedView.tag + passedPoint]
+            if touchedCard.tag + passedPoint < cards.count {
+                unowned let cardUnder = cards[touchedCard.tag + passedPoint]
                 cardUnder.content.center = CGPoint(x: (cardUnder.content.center.x + translationOffset), y: cardUnder.defaultCenter.y)
             }
         }
     }
     
     func slideAwayCards(to direction: String) {
-        
         animator.removeAllBehaviors()
         //Add UIGravityBehavior for pushing cards
         let gravity = UIGravityBehavior(items: cardsViews)
@@ -205,9 +214,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
         
         //Show new cards with delay
         delay(delay: 0.25, closure: showNewCards)
-        
-        //Increase score
-        score += 1
     }
     
     func delay (delay: Double, closure: () ->()) {
@@ -215,6 +221,8 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
     }
     
     func showNewCards() {
+        currentTask = nextTask
+        
         animator.removeAllBehaviors()
         
         for card in cards {
@@ -249,12 +257,12 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
         }
         
         //Update nexTask
-        nextTask = Task(score: self.score + 1)
+        nextTask = Task(complexity: self.taskComplexity + 1)
         print("\(score) : score in showNewCards")
     }
     
 }
 
 enum Operation {
-    case Plus, Minus, Multiply, Divide
+    case Addition, Subtraction, Multiplication, Division
 }
