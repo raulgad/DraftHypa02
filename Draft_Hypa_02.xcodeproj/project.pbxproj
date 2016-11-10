@@ -14,6 +14,8 @@
 		0450CDDB1D338E7600C07D7A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0450CDDA1D338E7600C07D7A /* Assets.xcassets */; };
 		0450CDDE1D338E7600C07D7A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0450CDDC1D338E7600C07D7A /* LaunchScreen.storyboard */; };
 		04ACA2631DB878DF0075289D /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04ACA2621DB878DF0075289D /* Task.swift */; };
+		04B2F7A11DCCA8CA00CEA98E /* EndScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B2F7A01DCCA8CA00CEA98E /* EndScreenViewController.swift */; };
+		04B2F7A31DCCA94500CEA98E /* OperationScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B2F7A21DCCA94500CEA98E /* OperationScreenViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -26,6 +28,8 @@
 		0450CDDD1D338E7600C07D7A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0450CDDF1D338E7600C07D7A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		04ACA2621DB878DF0075289D /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
+		04B2F7A01DCCA8CA00CEA98E /* EndScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EndScreenViewController.swift; sourceTree = "<group>"; };
+		04B2F7A21DCCA94500CEA98E /* OperationScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationScreenViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,6 +65,8 @@
 				0450CDD31D338E7600C07D7A /* AppDelegate.swift */,
 				0450CDD51D338E7600C07D7A /* CardsViewController.swift */,
 				0440C2661D4873C20097D400 /* Card.swift */,
+				04B2F7A21DCCA94500CEA98E /* OperationScreenViewController.swift */,
+				04B2F7A01DCCA8CA00CEA98E /* EndScreenViewController.swift */,
 				04ACA2621DB878DF0075289D /* Task.swift */,
 				0450CDD71D338E7600C07D7A /* Main.storyboard */,
 				0450CDDA1D338E7600C07D7A /* Assets.xcassets */,
@@ -144,9 +150,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04B2F7A11DCCA8CA00CEA98E /* EndScreenViewController.swift in Sources */,
 				04ACA2631DB878DF0075289D /* Task.swift in Sources */,
 				0450CDD61D338E7600C07D7A /* CardsViewController.swift in Sources */,
 				0450CDD41D338E7600C07D7A /* AppDelegate.swift in Sources */,
+				04B2F7A31DCCA94500CEA98E /* OperationScreenViewController.swift in Sources */,
 				0440C2671D4873C20097D400 /* Card.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -265,7 +273,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = Draft_Hypa_02/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.hypa.Draft-Hypa-02";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -278,7 +286,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				INFOPLIST_FILE = Draft_Hypa_02/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.3;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = "com.hypa.Draft-Hypa-02";
 				PRODUCT_NAME = "$(TARGET_NAME)";

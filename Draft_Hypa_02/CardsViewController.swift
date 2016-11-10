@@ -26,6 +26,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
     
     var animator: UIDynamicAnimator! 
     var cardPanGestureRecognizer: UIPanGestureRecognizer!
+    var questionTapGestureRecognizer: UITapGestureRecognizer!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,12 +44,17 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
             //Get init task's text for cards
             card.label.text = currentTask.getLabel(to: card)
             
-            //Set UIPanGestureRecognizer to cards except task's card (top card)
+            //Set UIPanGestureRecognizer to answer cards
             cardPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan(pan:)))
             cardPanGestureRecognizer.delegate = self
+            //Set UITapGestureRecognizer to question card (top card)
+            questionTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap(tap:)))
+            questionTapGestureRecognizer.delegate = self
             if card.item != Card.Item.Question {
                 card.content.addGestureRecognizer(cardPanGestureRecognizer)
                 card.content.isExclusiveTouch = true
+            } else {
+                card.content.addGestureRecognizer(questionTapGestureRecognizer)
             }
             cardsViews.append(card.content)
         }
@@ -93,6 +99,10 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         return true
+    }
+    
+    func tap(tap: UITapGestureRecognizer) {
+        self.performSegue(withIdentifier: "operationScreenSegue", sender: nil)
     }
     
     func pan(pan: UIPanGestureRecognizer) {
@@ -171,6 +181,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
                         print("Correct answer :)")
                     } else {
                         print("Wrong result :(")
+                        self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
                     }
                     
                     slideAwayCards(to: "right")
@@ -266,3 +277,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
 enum Operation {
     case Addition, Subtraction, Multiplication, Division
 }
+
+// reshuffle
+// mutable = original.sort { _ in arc4random() % 2 == 0 }

@@ -57,42 +57,49 @@ struct Task {
         correctAnswer = (answerOne == String(result)) ? Card.Item.AnswerOne : Card.Item.AnswerTwo
     }
     
+    func getRandomFromMinToMaxValues() -> Int {
+        return Int(arc4random_uniform(UInt32((Task.maxValueForRandom - Task.minValueForRandom)))) + Task.minValueForRandom
+    }
+    
     //Why we use 'mutating' if we already set 'mutating' in the setValuesToProperties()?
-    mutating func add() {
+    private mutating func add() {
         //Plus operation
-        let summand1 = Int(arc4random_uniform(UInt32((Task.maxValueForRandom - Task.minValueForRandom)))) + Task.minValueForRandom
-        let summand2 = Int(arc4random_uniform(UInt32((Task.maxValueForRandom - Task.minValueForRandom)))) + Task.minValueForRandom
+        let summand1 = getRandomFromMinToMaxValues()
+        let summand2 = getRandomFromMinToMaxValues()
         let result = summand1 + summand2
         let wrongResult = getWrongResult(summand1: summand1, summand2: summand2, result: result)
         setValuesToProperties(result: result, wrongResult: wrongResult)
         question = "\(summand1) + \(summand2)"
     }
     
-    mutating func subtract() {
+    private mutating func subtract() {
         //Minus operation
-        let summand1 = Int(arc4random_uniform(UInt32((Task.maxValueForRandom - Task.minValueForRandom)))) + Task.minValueForRandom
+        let summand1 = getRandomFromMinToMaxValues()
+        
+        //Set 'summand2' a random from minValueForRandom to 'summand1'
         let summand2 = Int(arc4random_uniform(UInt32((summand1 - Task.minValueForRandom)))) + Task.minValueForRandom
+        
         let result = summand1 - summand2
         let wrongResult = getWrongResult(summand1: summand1, summand2: summand2, result: result)
         setValuesToProperties(result: result, wrongResult: wrongResult)
         question = "\(summand1) - \(summand2)"
     }
     
-    mutating func multiply() {
+    private mutating func multiply() {
         //Multiply operation
-        let summand1 = Int(arc4random_uniform(UInt32((Task.maxValueForRandom - Task.minValueForRandom)))) + Task.minValueForRandom
-        let summand2 = Int(arc4random_uniform(UInt32((Task.maxValueForRandom - Task.minValueForRandom)))) + Task.minValueForRandom
+        let summand1 = getRandomFromMinToMaxValues()
+        let summand2 = getRandomFromMinToMaxValues()
         let result = summand1 * summand2
         let wrongResult = getWrongResult(summand1: summand1, summand2: summand2, result: result)
         setValuesToProperties(result: result, wrongResult: wrongResult)
         question = "\(summand1) x \(summand2)"
     }
     
-    mutating func divide() {
+    private mutating func divide() {
         //Divide operation
-        var summand1 = Int(arc4random_uniform(UInt32((Task.maxValueForRandom - Task.minValueForRandom)))) + Task.minValueForRandom
+        var summand1 = getRandomFromMinToMaxValues()
 
-        //Set 'summand2' to random from 1 to 'summand1' for the first 5 questions
+        //Set 'summand2' a random from 1 to 'summand1' for the first 5 questions and random from 1 to minValueForRandom for follow-up questions
         let summand2 = Int(arc4random_uniform(UInt32((Task.minValueForRandom == 1 ? summand1 : Task.minValueForRandom)))) + 1
         
         //Remove modulo from first summand
