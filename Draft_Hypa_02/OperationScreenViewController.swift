@@ -9,42 +9,49 @@
 import UIKit
 
 class OperationScreenViewController: UIViewController {
+    
+    var delegate: CardsViewControllerDelegate!
 
     @IBOutlet weak var additionButton: UIButton!
     @IBOutlet weak var subtractionButton: UIButton!
     @IBOutlet weak var multiplicationButton: UIButton!
     @IBOutlet weak var divisionButton: UIButton!
     
-    
     override func viewDidLoad() {
         super.viewDidLoad()
-
         additionButton.layer.cornerRadius = 8
         subtractionButton.layer.cornerRadius = 8
         multiplicationButton.layer.cornerRadius = 8
         divisionButton.layer.cornerRadius = 8
     }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
     
-    @IBAction func cancel(_ sender: AnyObject) {
-        
-        //RESTART TASK!!!!
-        
+    func resetGameAndCloseView() {
+        delegate.resetGame()
         self.dismiss(animated: true, completion: nil)
     }
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
-    override func prepare(for segue: UIStoryboardSegue, sender: AnyObject?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+    @IBAction func addition(_ sender: AnyObject) {
+        Task.taskOperation = Operation.Addition
+        resetGameAndCloseView()
     }
-    */
+    
+    @IBAction func subtraction(_ sender: AnyObject) {
+        Task.taskOperation = Operation.Subtraction
+        resetGameAndCloseView()
+    }
+    
+    @IBAction func multiplication(_ sender: AnyObject) {
+        Task.taskOperation = Operation.Multiplication
+        resetGameAndCloseView()
+    }
+    
+    @IBAction func division(_ sender: AnyObject) {
+        Task.taskOperation = Operation.Division
+        resetGameAndCloseView()
+    }
+    
+    @IBAction func cancel(_ sender: AnyObject) {
+        resetGameAndCloseView()
+    }
 
 }

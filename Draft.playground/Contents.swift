@@ -2,31 +2,28 @@
 
 import UIKit
 
-struct Test {
-    var str: String!
 
-    init () {
-        return
+class Test {
+    var score: Int = 0
+    var taskComplexity: Int = 0
+ 
+    func change1() {
+        score += 1
+        taskComplexity += 1
     }
-
-    mutating func setString(newString: String!) {
-        self.str = newString
+    
+    func reset() {
+        score = 0
+        taskComplexity = 0
     }
+ 
 }
 
-Test.str
-
-//var cards = [Test]()
-//
-//for _ in 0...2 {
-//    cards.append(Test())
-//}
-//
-////for card in cards {
-////    card.setString(newString: "working")
-////}
-//for index in 0..<cards.count {
-//    cards[index].setString(newString: "working")
-//}
-//
-//cards[0].str
+var cl = Test()
+cl.change1()
+cl.change1()
+cl.score
+cl.reset()
+cl.score
+cl.change1()
+cl.score

@@ -7,12 +7,18 @@
 //
 
 import UIKit
+
+protocol CardsViewControllerDelegate {
+    func resetGame()
+}
+
 //FIXME: Check and set all variables to 'weak || owned' property
-class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
+class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsViewControllerDelegate {
     var score: Int = 0
     var taskComplexity: Int = 0
-    static var taskOperation = Operation.Division
+    
     var currentTask = Task(complexity: 0)
+    
     var nextTask = Task(complexity: 1)
     let cardsCount: Int = 3
     let distanceForSlidingCard: CGFloat = -200
@@ -176,8 +182,8 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
                 if translation.x > abs(distanceForSlidingCard) {
                     //Check answer and edit score
                     if currentTask.checkAnswer(touchedCard: touchedCard.item) {
-                        score += 1
-                        taskComplexity += 1
+                        self.score += 1
+                        self.taskComplexity += 1
                         print("Correct answer :)")
                     } else {
                         print("Wrong result :(")
@@ -188,7 +194,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
                 }
                 //Slide away cards to left
                 else if translation.x < distanceForSlidingCard {
-                    taskComplexity += 1
+                    self.taskComplexity += 1
                     slideAwayCards(to: "left")
                 }
             
@@ -270,13 +276,26 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate{
         //Update nexTask
         nextTask = Task(complexity: self.taskComplexity + 1)
         print("\(score) : score in showNewCards")
+        print("\(taskComplexity) : taskComplexity in showNewCards")
+    }
+    
+    //Setting delegate to screen's view controllers for access to resetGame()
+    override func prepare(for segue: UIStoryboardSegue, sender: AnyObject?) {
+        if segue.identifier == "endScreenSegue" {
+            let destinationViewController = segue.destinationViewController as! EndScreenViewController
+            destinationViewController.delegate = self
+        } else if segue.identifier == "operationScreenSegue" {
+            let destinationViewController = segue.destinationViewController as! OperationScreenViewController
+            destinationViewController.delegate = self
+        }
+    }
+    
+    func resetGame() {
+        print("Reset Game!")
+        self.nextTask = Task(complexity: 1)
+        self.taskComplexity = 0
+        self.score = 0
+        showNewCards()
     }
     
 }
-
-enum Operation {
-    case Addition, Subtraction, Multiplication, Division
-}
-
-// reshuffle
-// mutable = original.sort { _ in arc4random() % 2 == 0 }

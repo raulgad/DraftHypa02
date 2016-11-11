@@ -9,7 +9,7 @@
         <!--Cards View Controller-->
         <scene sceneID="tne-QT-ifu">
             <objects>
-                <viewController id="BYZ-38-t0r" customClass="CardsViewController" customModule="Draft_Hypa_02" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="CardsViewControllerStoryboardID" id="BYZ-38-t0r" customClass="CardsViewController" customModule="Draft_Hypa_02" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
@@ -52,6 +52,9 @@
                                         <state key="normal" title="+">
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
+                                        <connections>
+                                            <action selector="addition:" destination="xwk-UE-72V" eventType="touchUpInside" id="eHS-Ve-6if"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zhe-gJ-kr7">
                                         <color key="backgroundColor" red="0.0019212996873043638" green="0.82990428664921467" blue="0.007913629956999688" alpha="1" colorSpace="calibratedRGB"/>
@@ -59,6 +62,9 @@
                                         <state key="normal" title="-">
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
+                                        <connections>
+                                            <action selector="subtraction:" destination="xwk-UE-72V" eventType="touchUpInside" id="hTW-0V-St0"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="lXp-TP-lCH">
                                         <color key="backgroundColor" red="0.91171056937172779" green="0.055302849174837417" blue="0.0084723460956016589" alpha="1" colorSpace="calibratedRGB"/>
@@ -66,6 +72,9 @@
                                         <state key="normal" title="×">
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
+                                        <connections>
+                                            <action selector="multiplication:" destination="xwk-UE-72V" eventType="touchUpInside" id="q92-Ib-wiM"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="MMI-Jx-Osj">
                                         <color key="backgroundColor" red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -73,6 +82,9 @@
                                         <state key="normal" title="÷">
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
+                                        <connections>
+                                            <action selector="division:" destination="xwk-UE-72V" eventType="touchUpInside" id="1O0-IS-hWv"/>
+                                        </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="y4z-2H-ILn">
                                         <state key="normal" title="Cancel"/>
@@ -132,7 +144,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WRK-QO-CAG" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="141" y="953"/>
+            <point key="canvasLocation" x="60" y="797"/>
         </scene>
     </scenes>
 </document>

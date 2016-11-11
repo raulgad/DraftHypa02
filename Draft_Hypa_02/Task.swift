@@ -10,9 +10,11 @@ import Foundation
 
 struct Task {
     static let plusMinusOperations: [(Int,Int)->Int] = [(+),(-)]
-    static var stepsToNextComplexity: Int = 5
-    static var minValueForRandom: Int = 1
-    static var maxValueForRandom: Int = 10
+    private static var stepsToNextComplexity: Int = 5
+    private static var minValueForRandom: Int = 1
+    private static var maxValueForRandom: Int = 10
+    //FIXME: Not sure if it good idea store task's operation by not private class variable
+    static var taskOperation: Operation = .Addition
     //FIXME: Try to use 'let' instead 'var' in 'question', 'answerOne', 'answerTwo'
     var question = "No question"
     var answerOne = "No first answer"
@@ -26,9 +28,14 @@ struct Task {
             Task.stepsToNextComplexity += 5
             Task.minValueForRandom = Task.maxValueForRandom
             Task.maxValueForRandom *= 2
+        //Reset to default range of random values
+        } else if complexity < 2 {
+            Task.stepsToNextComplexity = 5
+            Task.minValueForRandom = 1
+            Task.maxValueForRandom = 10
         }
         
-        switch CardsViewController.taskOperation {
+        switch Task.taskOperation {
         case .Addition:
             add()
         case .Subtraction:
@@ -47,7 +54,7 @@ struct Task {
     }
     
     mutating private func setValuesToProperties(result: Int, wrongResult: Int) {
-        //FIXME: Ugly implementation
+        //FIXME: Ugly implementation (use sort, map? 'original.map { _ in arc4random() % 2 == 0 }')
         //Randomly set result and wrongResult to answers
         let randomIndex = [0,1].randomElement
         answerOne = String([result, wrongResult][randomIndex])
@@ -127,6 +134,10 @@ struct Task {
     func checkAnswer(touchedCard: Card.Item) -> Bool {
         return touchedCard == correctAnswer
     }
+}
+
+enum Operation {
+    case Addition, Subtraction, Multiplication, Division
 }
 
 extension Array {
