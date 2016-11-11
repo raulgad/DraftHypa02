@@ -15,11 +15,55 @@
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="mrE-hu-Lik">
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" verticalCompressionResistancePriority="749" text="N" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cZX-F6-8RB">
+                                        <fontDescription key="fontDescription" type="system" pointSize="100"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="passes" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jdr-bQ-eMP">
+                                        <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                            </stackView>
+                            <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="e7a-yS-OAb">
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="N" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kLI-GZ-WUE">
+                                        <frame key="frameInset" width="70" height="120"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="100"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" misplaced="YES" text="score" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EXX-4B-xhR">
+                                        <frame key="frameInset" minX="6" minY="120" width="59" height="29"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="24"/>
+                                        <nil key="textColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                            </stackView>
+                        </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <constraints>
+                            <constraint firstItem="mrE-hu-Lik" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="212" id="AhR-4c-TWJ"/>
+                            <constraint firstItem="mrE-hu-Lik" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="JMd-Nj-Blp"/>
+                            <constraint firstItem="e7a-yS-OAb" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="Z6u-18-ARh"/>
+                            <constraint firstItem="e7a-yS-OAb" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="291" id="d5Q-H9-hoJ"/>
+                            <constraint firstItem="mrE-hu-Lik" firstAttribute="leading" secondItem="e7a-yS-OAb" secondAttribute="trailing" constant="142" id="nft-b6-Zcj"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="e7a-yS-OAb" secondAttribute="bottom" constant="20" id="qh7-BF-0NU"/>
+                            <constraint firstItem="mrE-hu-Lik" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="291" id="wFz-sf-6zv"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="mrE-hu-Lik" secondAttribute="bottom" constant="20" id="ybC-aE-zxp"/>
+                        </constraints>
                     </view>
                     <connections>
+                        <outlet property="passesStackView" destination="mrE-hu-Lik" id="SWN-fV-pU2"/>
+                        <outlet property="scoreStackView" destination="e7a-yS-OAb" id="eqG-UK-7BM"/>
                         <segue destination="0hg-RH-ULd" kind="show" identifier="endScreenSegue" id="mnh-Bp-xAD"/>
                         <segue destination="xwk-UE-72V" kind="show" identifier="operationScreenSegue" id="0cH-sh-YEM"/>
                     </connections>
@@ -36,7 +80,7 @@
                         <viewControllerLayoutGuide type="bottom" id="IBf-RM-Qni"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="H4a-76-NE4">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="nB2-Ou-RAS">
@@ -112,7 +156,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lVH-2z-ghb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="890" y="37"/>
+            <point key="canvasLocation" x="956" y="81"/>
         </scene>
         <!--End Screen View Controller-->
         <scene sceneID="E5e-Zv-1v5">
@@ -123,7 +167,7 @@
                         <viewControllerLayoutGuide type="bottom" id="nMo-Dq-lze"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="uKC-UU-WO8">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZMc-Gn-rZc">
@@ -144,7 +188,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WRK-QO-CAG" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="60" y="797"/>
+            <point key="canvasLocation" x="210" y="809"/>
         </scene>
     </scenes>
 </document>

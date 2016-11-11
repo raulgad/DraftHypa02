@@ -16,6 +16,7 @@ protocol CardsViewControllerDelegate {
 class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsViewControllerDelegate {
     var score: Int = 0
     var taskComplexity: Int = 0
+    var passes: Int = 3
     
     var currentTask = Task(complexity: 0)
     
@@ -26,9 +27,14 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     var cardsViews = [UIView]()
 
     var offsetBetweenTouchAndCardCenter = CGPoint.zero
-    var xDistanceBetweenCards: CGFloat = 120
+    var xDistanceFromCardsStartsMovesTogether: CGFloat = 120
     var previousPassedTranslationX: CGFloat = CGFloat(0)
     var snapBehaviorDamping: CGFloat = 0.250
+    
+    @IBOutlet weak var scoreStackView: UIStackView!
+    @IBOutlet weak var passesStackView: UIStackView!
+    var scoreLabel: UILabel!
+    var passesLabel: UILabel!
     
     var animator: UIDynamicAnimator! 
     var cardPanGestureRecognizer: UIPanGestureRecognizer!
@@ -67,6 +73,10 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         
         createConstrants()
         
+        scoreStackView.isHidden = true
+        scoreLabel = scoreStackView.arrangedSubviews[0] as! UILabel
+        passesStackView.isHidden = true
+        passesLabel = passesStackView.arrangedSubviews[0] as! UILabel
     }
     
     //FIXME: It should be in Card's class, and use UIStackView.
@@ -96,7 +106,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         for card in cards {
             card.defaultCenter = card.content.center
         }
-        
     }
     
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
@@ -140,16 +149,27 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 touchedCard.center = location
                 let translationOffset = translation.x - previousPassedTranslationX
                 
+                //Show score
+                if translation.x > 0 {
+                    scoreStackView.isHidden = false
+                    passesStackView.isHidden = true
+                    scoreLabel.text = String(score)
+                }
+                
                 //Moving linked cards
                 //Move to right
-                if translation.x > xDistanceBetweenCards {
+                if translation.x > xDistanceFromCardsStartsMovesTogether {
                     //Calcute number of times that card passed xDistanceBetweenCards
-                    let passedPoints = Int(translation.x / xDistanceBetweenCards)
+                    let passedPoints = Int(translation.x / xDistanceFromCardsStartsMovesTogether)
                     
                     moveCardsWithLag(touchedCard, passedPoints, translationOffset)
                 }
                 //Move to left
                 if translation.x < 0 {
+                    passesStackView.isHidden = false
+                    scoreStackView.isHidden = true
+                    passesLabel.text = String(passes)
+                    
                     //Move cards to the left simultaneously
                     for card in cards {
                         card.content.center = CGPoint(x: (card.content.center.x + translationOffset), y: card.defaultCenter.y)
@@ -187,7 +207,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                         print("Correct answer :)")
                     } else {
                         print("Wrong result :(")
-                        self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
+                        //self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
                     }
                     
                     slideAwayCards(to: "right")
@@ -195,6 +215,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 //Slide away cards to left
                 else if translation.x < distanceForSlidingCard {
                     self.taskComplexity += 1
+                    passes -= 1
                     slideAwayCards(to: "left")
                 }
             
@@ -297,5 +318,4 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         self.score = 0
         showNewCards()
     }
-    
 }
