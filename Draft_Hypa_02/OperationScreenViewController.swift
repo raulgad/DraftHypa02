@@ -51,7 +51,7 @@ class OperationScreenViewController: UIViewController {
     }
     
     @IBAction func cancel(_ sender: AnyObject) {
-        resetGameAndCloseView()
+        self.dismiss(animated: true, completion: nil)
     }
 
 }

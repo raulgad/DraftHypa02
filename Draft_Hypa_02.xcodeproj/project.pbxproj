@@ -16,6 +16,7 @@
 		04ACA2631DB878DF0075289D /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04ACA2621DB878DF0075289D /* Task.swift */; };
 		04B2F7A11DCCA8CA00CEA98E /* EndScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B2F7A01DCCA8CA00CEA98E /* EndScreenViewController.swift */; };
 		04B2F7A31DCCA94500CEA98E /* OperationScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B2F7A21DCCA94500CEA98E /* OperationScreenViewController.swift */; };
+		04D48BA61DD5D4570058767D /* BuyScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04D48BA51DD5D4570058767D /* BuyScreenViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +31,7 @@
 		04ACA2621DB878DF0075289D /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		04B2F7A01DCCA8CA00CEA98E /* EndScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EndScreenViewController.swift; sourceTree = "<group>"; };
 		04B2F7A21DCCA94500CEA98E /* OperationScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationScreenViewController.swift; sourceTree = "<group>"; };
+		04D48BA51DD5D4570058767D /* BuyScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BuyScreenViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +68,7 @@
 				0450CDD51D338E7600C07D7A /* CardsViewController.swift */,
 				0440C2661D4873C20097D400 /* Card.swift */,
 				04B2F7A21DCCA94500CEA98E /* OperationScreenViewController.swift */,
+				04D48BA51DD5D4570058767D /* BuyScreenViewController.swift */,
 				04B2F7A01DCCA8CA00CEA98E /* EndScreenViewController.swift */,
 				04ACA2621DB878DF0075289D /* Task.swift */,
 				0450CDD71D338E7600C07D7A /* Main.storyboard */,
@@ -150,6 +153,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04D48BA61DD5D4570058767D /* BuyScreenViewController.swift in Sources */,
 				04B2F7A11DCCA8CA00CEA98E /* EndScreenViewController.swift in Sources */,
 				04ACA2631DB878DF0075289D /* Task.swift in Sources */,
 				0450CDD61D338E7600C07D7A /* CardsViewController.swift in Sources */,

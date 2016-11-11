@@ -10,6 +10,7 @@ import UIKit
 
 protocol CardsViewControllerDelegate {
     func resetGame()
+    var passes: Int { get set }
 }
 
 //FIXME: Check and set all variables to 'weak || owned' property
@@ -207,7 +208,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                         print("Correct answer :)")
                     } else {
                         print("Wrong result :(")
-                        //self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
+                        self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
                     }
                     
                     slideAwayCards(to: "right")
@@ -215,7 +216,14 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 //Slide away cards to left
                 else if translation.x < distanceForSlidingCard {
                     self.taskComplexity += 1
-                    passes -= 1
+                    
+                    //Decreese passes
+                    if passes < 1 {
+                        self.performSegue(withIdentifier: "buyScreenSegue", sender: nil)
+                    } else {
+                        passes -= 1
+                    }
+                    
                     slideAwayCards(to: "left")
                 }
             
@@ -307,6 +315,9 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             destinationViewController.delegate = self
         } else if segue.identifier == "operationScreenSegue" {
             let destinationViewController = segue.destinationViewController as! OperationScreenViewController
+            destinationViewController.delegate = self
+        } else if segue.identifier == "buyScreenSegue" {
+            let destinationViewController = segue.destinationViewController as! BuyScreenViewController
             destinationViewController.delegate = self
         }
     }
