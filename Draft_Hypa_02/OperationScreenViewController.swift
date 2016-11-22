@@ -25,6 +25,11 @@ class OperationScreenViewController: UIViewController {
         divisionButton.layer.cornerRadius = 8
     }
     
+    
+//    override func viewDidDisappear(_ animated: Bool) {
+//        self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
+//    }
+    
     func resetGameAndCloseView() {
         delegate.resetGame()
         self.dismiss(animated: true, completion: nil)
@@ -53,5 +58,4 @@ class OperationScreenViewController: UIViewController {
     @IBAction func cancel(_ sender: AnyObject) {
         self.dismiss(animated: true, completion: nil)
     }
-
 }

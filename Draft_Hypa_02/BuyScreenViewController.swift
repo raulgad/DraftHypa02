@@ -11,6 +11,7 @@ import UIKit
 class BuyScreenViewController: UIViewController {
     
     var delegate: CardsViewControllerDelegate!
+//    var isBoughtPasses: Bool = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -21,10 +22,20 @@ class BuyScreenViewController: UIViewController {
     }
     
     @IBAction func cancel(_ sender: AnyObject) {
+//        if isBoughtPasses {
+//            delegate.resumeTiming()
+//            self.dismiss(animated: true, completion: nil)
+//        } else {
+//            delegate.resetGame()
+//            self.dismiss(animated: true, completion: nil)
+//        }
+        
+        delegate.resetGame()
         self.dismiss(animated: true, completion: nil)
     }
     
     private func increasePasses() {
         delegate.passes += 1
+//        isBoughtPasses = true
     }
 }

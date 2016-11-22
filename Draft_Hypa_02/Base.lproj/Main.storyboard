@@ -15,10 +15,10 @@
                         <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="mrE-hu-Lik">
+                            <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" distribution="fillProportionally" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="mrE-hu-Lik">
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" verticalCompressionResistancePriority="749" text="N" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cZX-F6-8RB">
                                         <fontDescription key="fontDescription" type="system" pointSize="100"/>
@@ -32,38 +32,44 @@
                                     </label>
                                 </subviews>
                             </stackView>
-                            <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="e7a-yS-OAb">
+                            <stackView opaque="NO" contentMode="scaleAspectFit" axis="vertical" distribution="fillProportionally" alignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="e7a-yS-OAb">
                                 <subviews>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="N" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kLI-GZ-WUE">
-                                        <frame key="frameInset" width="70" height="307"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="N" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kLI-GZ-WUE">
                                         <fontDescription key="fontDescription" type="system" pointSize="100"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" ambiguous="YES" text="score" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EXX-4B-xhR">
-                                        <frame key="frameInset" minX="6" minY="307" width="59" height="29"/>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="751" text="score" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EXX-4B-xhR">
                                         <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                         <nil key="textColor"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                 </subviews>
                             </stackView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tcY-OU-Ct2">
+                                <color key="backgroundColor" red="0.0" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="mrE-hu-Lik" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="212" id="AhR-4c-TWJ"/>
                             <constraint firstItem="mrE-hu-Lik" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="JMd-Nj-Blp"/>
+                            <constraint firstItem="tcY-OU-Ct2" firstAttribute="bottom" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="KK4-eb-Icb"/>
+                            <constraint firstAttribute="trailing" secondItem="tcY-OU-Ct2" secondAttribute="trailing" id="VTd-Xq-bab"/>
                             <constraint firstItem="e7a-yS-OAb" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="Z6u-18-ARh"/>
                             <constraint firstItem="e7a-yS-OAb" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="291" id="d5Q-H9-hoJ"/>
+                            <constraint firstItem="tcY-OU-Ct2" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="jhS-gF-nAq"/>
                             <constraint firstItem="mrE-hu-Lik" firstAttribute="leading" secondItem="e7a-yS-OAb" secondAttribute="trailing" constant="142" id="nft-b6-Zcj"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="e7a-yS-OAb" secondAttribute="bottom" constant="20" id="qh7-BF-0NU"/>
                             <constraint firstItem="mrE-hu-Lik" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="291" id="wFz-sf-6zv"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="mrE-hu-Lik" secondAttribute="bottom" constant="20" id="ybC-aE-zxp"/>
+                            <constraint firstItem="tcY-OU-Ct2" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="zxp-hu-ZY9"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="passesStackView" destination="mrE-hu-Lik" id="SWN-fV-pU2"/>
                         <outlet property="scoreStackView" destination="e7a-yS-OAb" id="eqG-UK-7BM"/>
+                        <outlet property="timingView" destination="tcY-OU-Ct2" id="ypV-0f-Tn0"/>
                         <segue destination="0hg-RH-ULd" kind="show" identifier="endScreenSegue" id="mnh-Bp-xAD"/>
                         <segue destination="xwk-UE-72V" kind="show" identifier="operationScreenSegue" id="0cH-sh-YEM"/>
                         <segue destination="VfA-FG-ITH" kind="show" identifier="buyScreenSegue" id="cmm-dK-Nh4"/>
@@ -71,6 +77,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="243.75" y="518.75"/>
         </scene>
         <!--Operation Screen View Controller-->
         <scene sceneID="WBr-9F-nIP">
@@ -81,7 +88,7 @@
                         <viewControllerLayoutGuide type="bottom" id="IBf-RM-Qni"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="H4a-76-NE4">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillEqually" spacing="8" translatesAutoresizingMaskIntoConstraints="NO" id="nB2-Ou-RAS">
@@ -157,7 +164,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lVH-2z-ghb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="939" y="139"/>
+            <point key="canvasLocation" x="1298" y="140"/>
         </scene>
         <!--End Screen View Controller-->
         <scene sceneID="E5e-Zv-1v5">
@@ -168,7 +175,7 @@
                         <viewControllerLayoutGuide type="bottom" id="nMo-Dq-lze"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="uKC-UU-WO8">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="8S3-A6-R4U">
@@ -189,7 +196,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WRK-QO-CAG" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="141" y="938"/>
+            <point key="canvasLocation" x="244" y="1340"/>
         </scene>
         <!--Buy Screen View Controller-->
         <scene sceneID="Zf8-Kd-gI9">
@@ -200,18 +207,16 @@
                         <viewControllerLayoutGuide type="bottom" id="9QK-rK-e6s"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="aJ9-Hx-rQA">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Phu-uJ-JAd">
-                                <frame key="frameInset" minX="229" minY="370" width="103" height="217"/>
+                            <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Phu-uJ-JAd">
                                 <state key="normal" title="Cancel"/>
                                 <connections>
                                     <action selector="cancel:" destination="VfA-FG-ITH" eventType="touchUpInside" id="nZB-S9-BcJ"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" ambiguous="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PxW-3j-aBd">
-                                <frame key="frameInset" minX="60" minY="370" width="30" height="217"/>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="PxW-3j-aBd">
                                 <state key="normal" title="Buy"/>
                                 <connections>
                                     <action selector="buyPasses:" destination="VfA-FG-ITH" eventType="touchUpInside" id="6lY-kK-K3b"/>
@@ -233,7 +238,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="yer-cv-Zbr" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="986" y="938"/>
+            <point key="canvasLocation" x="1298" y="926"/>
         </scene>
     </scenes>
 </document>
