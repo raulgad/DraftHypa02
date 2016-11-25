@@ -46,30 +46,22 @@
                                     </label>
                                 </subviews>
                             </stackView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tcY-OU-Ct2">
-                                <color key="backgroundColor" red="0.0" green="1" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
-                            </view>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <constraints>
                             <constraint firstItem="mrE-hu-Lik" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="212" id="AhR-4c-TWJ"/>
                             <constraint firstItem="mrE-hu-Lik" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="JMd-Nj-Blp"/>
-                            <constraint firstItem="tcY-OU-Ct2" firstAttribute="bottom" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="KK4-eb-Icb"/>
-                            <constraint firstAttribute="trailing" secondItem="tcY-OU-Ct2" secondAttribute="trailing" id="VTd-Xq-bab"/>
                             <constraint firstItem="e7a-yS-OAb" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="Z6u-18-ARh"/>
                             <constraint firstItem="e7a-yS-OAb" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="291" id="d5Q-H9-hoJ"/>
-                            <constraint firstItem="tcY-OU-Ct2" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="jhS-gF-nAq"/>
                             <constraint firstItem="mrE-hu-Lik" firstAttribute="leading" secondItem="e7a-yS-OAb" secondAttribute="trailing" constant="142" id="nft-b6-Zcj"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="e7a-yS-OAb" secondAttribute="bottom" constant="20" id="qh7-BF-0NU"/>
                             <constraint firstItem="mrE-hu-Lik" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="291" id="wFz-sf-6zv"/>
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="mrE-hu-Lik" secondAttribute="bottom" constant="20" id="ybC-aE-zxp"/>
-                            <constraint firstItem="tcY-OU-Ct2" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="zxp-hu-ZY9"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="passesStackView" destination="mrE-hu-Lik" id="SWN-fV-pU2"/>
                         <outlet property="scoreStackView" destination="e7a-yS-OAb" id="eqG-UK-7BM"/>
-                        <outlet property="timingView" destination="tcY-OU-Ct2" id="ypV-0f-Tn0"/>
                         <segue destination="0hg-RH-ULd" kind="show" identifier="endScreenSegue" id="mnh-Bp-xAD"/>
                         <segue destination="xwk-UE-72V" kind="show" identifier="operationScreenSegue" id="0cH-sh-YEM"/>
                         <segue destination="VfA-FG-ITH" kind="show" identifier="buyScreenSegue" id="cmm-dK-Nh4"/>

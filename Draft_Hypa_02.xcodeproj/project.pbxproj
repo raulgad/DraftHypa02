@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		043758DC1DE5634E008FA8C3 /* Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = 043758DB1DE5634E008FA8C3 /* Time.swift */; };
 		0440C2671D4873C20097D400 /* Card.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0440C2661D4873C20097D400 /* Card.swift */; };
 		0450CDD41D338E7600C07D7A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0450CDD31D338E7600C07D7A /* AppDelegate.swift */; };
 		0450CDD61D338E7600C07D7A /* CardsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0450CDD51D338E7600C07D7A /* CardsViewController.swift */; };
@@ -20,6 +21,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		043758DB1DE5634E008FA8C3 /* Time.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Time.swift; sourceTree = "<group>"; };
 		0440C2661D4873C20097D400 /* Card.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Card.swift; sourceTree = "<group>"; };
 		0450CDD01D338E7600C07D7A /* Draft_Hypa_02.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Draft_Hypa_02.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0450CDD31D338E7600C07D7A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -67,6 +69,7 @@
 				0450CDD31D338E7600C07D7A /* AppDelegate.swift */,
 				0450CDD51D338E7600C07D7A /* CardsViewController.swift */,
 				0440C2661D4873C20097D400 /* Card.swift */,
+				043758DB1DE5634E008FA8C3 /* Time.swift */,
 				04B2F7A21DCCA94500CEA98E /* OperationScreenViewController.swift */,
 				04D48BA51DD5D4570058767D /* BuyScreenViewController.swift */,
 				04B2F7A01DCCA8CA00CEA98E /* EndScreenViewController.swift */,
@@ -159,6 +162,7 @@
 				0450CDD61D338E7600C07D7A /* CardsViewController.swift in Sources */,
 				0450CDD41D338E7600C07D7A /* AppDelegate.swift in Sources */,
 				04B2F7A31DCCA94500CEA98E /* OperationScreenViewController.swift in Sources */,
+				043758DC1DE5634E008FA8C3 /* Time.swift in Sources */,
 				0440C2671D4873C20097D400 /* Card.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
