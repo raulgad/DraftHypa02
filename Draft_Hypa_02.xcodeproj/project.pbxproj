@@ -14,6 +14,11 @@
 		0450CDD91D338E7600C07D7A /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0450CDD71D338E7600C07D7A /* Main.storyboard */; };
 		0450CDDB1D338E7600C07D7A /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 0450CDDA1D338E7600C07D7A /* Assets.xcassets */; };
 		0450CDDE1D338E7600C07D7A /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 0450CDDC1D338E7600C07D7A /* LaunchScreen.storyboard */; };
+		04611EBD1DF198200009BDE1 /* BacksideController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04611EBC1DF198200009BDE1 /* BacksideController.swift */; };
+		04611EBF1DF1A1650009BDE1 /* TopItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04611EBE1DF1A1650009BDE1 /* TopItem.swift */; };
+		04611EC11DF1A17E0009BDE1 /* BottomItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04611EC01DF1A17E0009BDE1 /* BottomItem.swift */; };
+		04611EC31DF2E2700009BDE1 /* Score.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04611EC21DF2E2700009BDE1 /* Score.swift */; };
+		04611EC51DF2E2FA0009BDE1 /* Passes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04611EC41DF2E2FA0009BDE1 /* Passes.swift */; };
 		04ACA2631DB878DF0075289D /* Task.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04ACA2621DB878DF0075289D /* Task.swift */; };
 		04B2F7A11DCCA8CA00CEA98E /* EndScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B2F7A01DCCA8CA00CEA98E /* EndScreenViewController.swift */; };
 		04B2F7A31DCCA94500CEA98E /* OperationScreenViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04B2F7A21DCCA94500CEA98E /* OperationScreenViewController.swift */; };
@@ -30,6 +35,11 @@
 		0450CDDA1D338E7600C07D7A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		0450CDDD1D338E7600C07D7A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		0450CDDF1D338E7600C07D7A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		04611EBC1DF198200009BDE1 /* BacksideController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BacksideController.swift; sourceTree = "<group>"; };
+		04611EBE1DF1A1650009BDE1 /* TopItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TopItem.swift; sourceTree = "<group>"; };
+		04611EC01DF1A17E0009BDE1 /* BottomItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BottomItem.swift; sourceTree = "<group>"; };
+		04611EC21DF2E2700009BDE1 /* Score.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Score.swift; sourceTree = "<group>"; };
+		04611EC41DF2E2FA0009BDE1 /* Passes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Passes.swift; sourceTree = "<group>"; };
 		04ACA2621DB878DF0075289D /* Task.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Task.swift; sourceTree = "<group>"; };
 		04B2F7A01DCCA8CA00CEA98E /* EndScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EndScreenViewController.swift; sourceTree = "<group>"; };
 		04B2F7A21DCCA94500CEA98E /* OperationScreenViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OperationScreenViewController.swift; sourceTree = "<group>"; };
@@ -71,8 +81,13 @@
 				0440C2661D4873C20097D400 /* Card.swift */,
 				043758DB1DE5634E008FA8C3 /* Time.swift */,
 				04B2F7A21DCCA94500CEA98E /* OperationScreenViewController.swift */,
+				04611EBC1DF198200009BDE1 /* BacksideController.swift */,
+				04611EBE1DF1A1650009BDE1 /* TopItem.swift */,
+				04611EC01DF1A17E0009BDE1 /* BottomItem.swift */,
 				04D48BA51DD5D4570058767D /* BuyScreenViewController.swift */,
 				04B2F7A01DCCA8CA00CEA98E /* EndScreenViewController.swift */,
+				04611EC41DF2E2FA0009BDE1 /* Passes.swift */,
+				04611EC21DF2E2700009BDE1 /* Score.swift */,
 				04ACA2621DB878DF0075289D /* Task.swift */,
 				0450CDD71D338E7600C07D7A /* Main.storyboard */,
 				0450CDDA1D338E7600C07D7A /* Assets.xcassets */,
@@ -160,9 +175,14 @@
 				04B2F7A11DCCA8CA00CEA98E /* EndScreenViewController.swift in Sources */,
 				04ACA2631DB878DF0075289D /* Task.swift in Sources */,
 				0450CDD61D338E7600C07D7A /* CardsViewController.swift in Sources */,
+				04611EBF1DF1A1650009BDE1 /* TopItem.swift in Sources */,
+				04611EC51DF2E2FA0009BDE1 /* Passes.swift in Sources */,
 				0450CDD41D338E7600C07D7A /* AppDelegate.swift in Sources */,
+				04611EBD1DF198200009BDE1 /* BacksideController.swift in Sources */,
+				04611EC11DF1A17E0009BDE1 /* BottomItem.swift in Sources */,
 				04B2F7A31DCCA94500CEA98E /* OperationScreenViewController.swift in Sources */,
 				043758DC1DE5634E008FA8C3 /* Time.swift in Sources */,
+				04611EC31DF2E2700009BDE1 /* Score.swift in Sources */,
 				0440C2671D4873C20097D400 /* Card.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -35,7 +35,7 @@ class BuyScreenViewController: UIViewController {
     }
     
     private func increasePasses() {
-        delegate.passes += 1
+        delegate.passes.value += 1
         isBoughtPasses = true
     }
 }

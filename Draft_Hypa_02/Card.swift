@@ -11,8 +11,8 @@ import UIKit
 
 //FIXME: Why using class and not struct? Struct is better for perfomance (it using stack and value type). Because we cannot assign new value to struct's property. See 'Protocol and Value Oriented Programming in UIKit Apps' WWDC video.
 class Card {
-    //Use 'cardNumber' for set number of the card in an 'UIView.tag' parameter
-    private static var cardNumber: Int = 0
+    //Use 'number' for set number of the card in an 'UIView.tag' parameter
+    private static var number: Int = 0
     private static var previousCardsContentForConstraint = UIView()
     static let cardsCount: Int = 3
     
@@ -29,17 +29,18 @@ class Card {
         label.textAlignment = .center
         content.backgroundColor = UIColor.randomColor()
         content.translatesAutoresizingMaskIntoConstraints = false
-        content.tag = Card.cardNumber
-        item = Item(rawValue: Card.cardNumber) ?? Item.Unknown
+        content.tag = Card.number
+        item = Item(rawValue: Card.number) ?? Item.Unknown
         content.layer.cornerRadius = (item == .Question) ? 0 : 4
         label.text = String(self.item)
         content.addSubview(label)
         defaultCenter = content.center
         
-        Card.cardNumber += 1
+        Card.number += 1
     }
     
-    func createConstraints(destinationViewController: UIViewController) -> [NSLayoutConstraint] {
+    func createViewConstraints(destinationViewController: UIViewController) -> [NSLayoutConstraint] {
+        //FIXME: Hardcode "0, 12, -12, 20, 13 ..."
         let pinLeftCard = NSLayoutConstraint(item: self.content, attribute: NSLayoutAttribute.left, relatedBy: NSLayoutRelation.equal, toItem: destinationViewController.view, attribute: NSLayoutAttribute.left, multiplier: 1.0, constant: self.item == .Question ? 0 : 12)
         let pinRightCard = NSLayoutConstraint(item: self.content, attribute: NSLayoutAttribute.right, relatedBy: NSLayoutRelation.equal, toItem: destinationViewController.view, attribute: NSLayoutAttribute.right, multiplier: 1.0, constant: self.item == .Question ? 0 : -12)
         let topMarginCards = NSLayoutConstraint(item: self.content, attribute: NSLayoutAttribute.top, relatedBy: NSLayoutRelation.equal, toItem: self.item == .Question ? destinationViewController.view : Card.previousCardsContentForConstraint, attribute: self.item == .Question ? NSLayoutAttribute.top : NSLayoutAttribute.bottom, multiplier: 1.0, constant: self.item == .Question ? 20 : 13)
