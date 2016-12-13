@@ -15,7 +15,7 @@ class EndScreenViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
     }
-    
+        
     @IBAction func cancel(_ sender: AnyObject) {
         delegate.resetGame()
         self.dismiss(animated: true, completion: nil)

@@ -18,7 +18,16 @@ class BottomItem {
     var nameLabel = UILabel()
     
     private init() {
-        view = UIStackView()
+        valueLabel.font = UIFont(name: valueLabel.font.fontName, size: 100)
+        valueLabel.backgroundColor = #colorLiteral(red: 0.1991284192, green: 0.6028449535, blue: 0.9592232704, alpha: 1)
+        valueLabel.text = String(Score.sharedInstance.value)
+        
+        nameLabel.font = UIFont(name: nameLabel.font.fontName, size: 24)
+        nameLabel.backgroundColor = #colorLiteral(red: 0.7540004253, green: 0, blue: 0.2649998069, alpha: 1)
+        nameLabel.text = Score.sharedInstance.name
+        
+        
+        view = UIStackView(arrangedSubviews: [valueLabel, nameLabel])
         view.axis = .vertical
         view.contentMode = .scaleAspectFit
         view.distribution = .fillProportionally
@@ -26,27 +35,16 @@ class BottomItem {
         view.spacing = 0
         view.translatesAutoresizingMaskIntoConstraints = false
         
-        valueLabel.font = UIFont(name: valueLabel.font.fontName, size: 100)
-        valueLabel.backgroundColor = #colorLiteral(red: 0.1991284192, green: 0.6028449535, blue: 0.9592232704, alpha: 1)
-        valueLabel.text = String(Score.sharedInstance.value)
-        valueLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addArrangedSubview(valueLabel)
-        
-        nameLabel.font = UIFont(name: nameLabel.font.fontName, size: 24)
-        nameLabel.backgroundColor = #colorLiteral(red: 0.7540004253, green: 0, blue: 0.2649998069, alpha: 1)
-        nameLabel.text = Score.sharedInstance.name
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addArrangedSubview(nameLabel)
-        
-//        setToView()
+
+        //        setToView()
     }
     
     func createViewConstraints(destinationViewController: UIViewController) -> [NSLayoutConstraint] {
         pinLeftView = NSLayoutConstraint(item: self.view, attribute: NSLayoutAttribute.left, relatedBy: NSLayoutRelation.equal, toItem: destinationViewController.view, attribute: NSLayoutAttribute.left, multiplier: 1.0, constant: 12)
         let pinRightView = NSLayoutConstraint(item: self.view, attribute: NSLayoutAttribute.right, relatedBy: NSLayoutRelation.equal, toItem: destinationViewController.view, attribute: NSLayoutAttribute.right, multiplier: 1.0, constant: 0)
         let topMarginView = NSLayoutConstraint(item: self.view, attribute: NSLayoutAttribute.top, relatedBy: NSLayoutRelation.equal, toItem: destinationViewController.view, attribute: NSLayoutAttribute.top, multiplier: 1.0, constant: (0.65 * destinationViewController.view.bounds.height))
-        
         let heightView = NSLayoutConstraint(item: self.view, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.equal, toItem: destinationViewController.view, attribute: NSLayoutAttribute.height, multiplier: 0.3, constant: 0)
+        
         return [pinLeftView, pinRightView, topMarginView, heightView]
     }
     
@@ -76,10 +74,8 @@ class BottomItem {
         let name = view.arrangedSubviews[1] as! UILabel
         if name.text == Score.sharedInstance.name {
             valueLabel.text = String(Score.sharedInstance.value)
-//            view.layoutIfNeeded()
         } else if name.text == Passes.sharedInstance.name {
             valueLabel.text = String(Passes.sharedInstance.value)
-//            view.layoutIfNeeded()
         }
     }
     

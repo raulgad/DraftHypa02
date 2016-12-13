@@ -36,8 +36,10 @@ class OperationScreenViewController: UIViewController {
     }
 
     @IBAction func addition(_ sender: AnyObject) {
-        Task.taskOperation = Operation.Addition
-        resetGameAndCloseView()
+        self.dismiss(animated: true, completion: nil)
+        
+//        Task.taskOperation = Operation.Addition
+//        resetGameAndCloseView()
     }
     
     @IBAction func subtraction(_ sender: AnyObject) {
