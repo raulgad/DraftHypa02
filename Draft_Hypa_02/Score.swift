@@ -11,16 +11,12 @@ import Foundation
 class Score {
     static let sharedInstance: Score = Score()
     let name: String = "Score"
+    //FIXME: Bad idea to give everybody access for changing the value. Maybe you should give access by delegate.
     var value: Int = 0 {
         didSet {
-            //FIXME: Not a godd idea to get direct access (not through 'backside')?
-            delay(delay: 1.5, closure: BottomItem.sharedInstance.updateScoreOrPassesInView)
+            Backside.sharedInstance.bottomItem.updateScoreOrPassesInView()
         }
     }
     
     private init() { }
-    
-    func delay (delay: Double, closure: () ->()) {
-        DispatchQueue.main.after(when: .now() + delay, execute: closure)
-    }
 }

@@ -11,10 +11,11 @@ import Foundation
 class Passes {
     static let sharedInstance: Passes = Passes()
     let name: String = "Passes"
-    var value: Int = 1 {
+    //FIXME: Bad idea to give everybody access for changing the value. Maybe you should give access by delegate.
+    var value: Int = 3 {
         didSet {
-            //FIXME: Not a godd idea to get direct access (not through 'backside')?
-            BottomItem.sharedInstance.updateScoreOrPassesInView()
+            Backside.sharedInstance.bottomItem.updateScoreOrPassesInView()
+            Task.holdComplexity()
         }
     }
     

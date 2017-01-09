@@ -12,9 +12,8 @@ import UIKit
 class Backside {
     static let sharedInstance: Backside = Backside()
     
-    private let topItem: TopItem
-    private var bottomItem: BottomItem
-    
+    let topItem: TopItem
+    let bottomItem: BottomItem
     
     private init() {
         topItem = TopItem.sharedInstance
@@ -22,7 +21,7 @@ class Backside {
     }
     
     func updateItemsWhenCardMoving(to translation: CGPoint) {
-//        bottomItem.updateViewWhenCardMoving(direction: translation.x > 0 ? .left : .right)
+        bottomItem.updateViewWhenCardMoving(direction: translation.x > 0 ? .left : .right)
     }
     
     func updateItemsWhenGotAnswer(isCorrect isCorrectAnswer: Bool) {

@@ -18,27 +18,21 @@ class BottomItem {
     var nameLabel = UILabel()
     
     private init() {
-        view = UIStackView()
+        valueLabel.font = UIFont(name: valueLabel.font.fontName, size: 100)
+        valueLabel.backgroundColor = #colorLiteral(red: 0.1991284192, green: 0.6028449535, blue: 0.9592232704, alpha: 1)
+        valueLabel.text = String(Score.sharedInstance.value)
+        
+        nameLabel.font = UIFont(name: nameLabel.font.fontName, size: 24)
+        nameLabel.backgroundColor = #colorLiteral(red: 0.7540004253, green: 0, blue: 0.2649998069, alpha: 1)
+        nameLabel.text = Score.sharedInstance.name
+        
+        view = UIStackView(arrangedSubviews: [valueLabel, nameLabel])
         view.axis = .vertical
         view.contentMode = .scaleAspectFit
         view.distribution = .fillProportionally
         view.alignment = .leading
         view.spacing = 0
         view.translatesAutoresizingMaskIntoConstraints = false
-        
-        valueLabel.font = UIFont(name: valueLabel.font.fontName, size: 100)
-        valueLabel.backgroundColor = #colorLiteral(red: 0.1991284192, green: 0.6028449535, blue: 0.9592232704, alpha: 1)
-        valueLabel.text = String(Score.sharedInstance.value)
-        valueLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addArrangedSubview(valueLabel)
-        
-        nameLabel.font = UIFont(name: nameLabel.font.fontName, size: 24)
-        nameLabel.backgroundColor = #colorLiteral(red: 0.7540004253, green: 0, blue: 0.2649998069, alpha: 1)
-        nameLabel.text = Score.sharedInstance.name
-        nameLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addArrangedSubview(nameLabel)
-        
-//        setToView()
     }
     
     func createViewConstraints(destinationViewController: UIViewController) -> [NSLayoutConstraint] {
@@ -57,14 +51,12 @@ class BottomItem {
                 valueLabel.text = String(Score.sharedInstance.value)
                 nameLabel.text = Score.sharedInstance.name
                 pinLeftView.constant = LeftSideViewMargin.left.rawValue
-                view.layoutIfNeeded()
             }
         case .right:
             if pinLeftView.constant == LeftSideViewMargin.left.rawValue {
                 valueLabel.text = String(Passes.sharedInstance.value)
                 nameLabel.text = Passes.sharedInstance.name
                 pinLeftView.constant = LeftSideViewMargin.right.rawValue
-                view.layoutIfNeeded()
             }
         default:
             print("'updateViewWhenCardMoving' not defined for this direction")
@@ -76,31 +68,9 @@ class BottomItem {
         let name = view.arrangedSubviews[1] as! UILabel
         if name.text == Score.sharedInstance.name {
             valueLabel.text = String(Score.sharedInstance.value)
-//            view.layoutIfNeeded()
         } else if name.text == Passes.sharedInstance.name {
             valueLabel.text = String(Passes.sharedInstance.value)
-//            view.layoutIfNeeded()
         }
-    }
-    
-    func setToView() {
-//        view.removeAllContent()
-        let score = Score.sharedInstance
-        
-        let valueLabel = UILabel()
-        valueLabel.font = UIFont(name: valueLabel.font.fontName, size: 100)
-        valueLabel.text = String(score.value)
-        
-        valueLabel.backgroundColor = #colorLiteral(red: 0.1991284192, green: 0.6028449535, blue: 0.9592232704, alpha: 1)
-        
-        let nameLabel = UILabel()
-        nameLabel.font = UIFont(name: nameLabel.font.fontName, size: 24)
-        nameLabel.text = score.name
-        
-        nameLabel.backgroundColor = #colorLiteral(red: 0.7540004253, green: 0, blue: 0.2649998069, alpha: 1)
-        
-        view.addArrangedSubview(valueLabel)
-        view.addArrangedSubview(nameLabel)
     }
     
     enum LeftSideViewMargin: CGFloat {

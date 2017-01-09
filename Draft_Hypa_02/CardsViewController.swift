@@ -11,18 +11,17 @@ import UIKit
 protocol CardsViewControllerDelegate {
     var passes: Passes { get set }
     func resetGame()
-    func resumeTiming()
+    func gameOver()
+    func slideAwayCards(to :CardsViewController.Direction)
 }
 
-//FIXME: Check and set all variables to 'weak || owned' property
+//FIXME: Check and set all variables to 'weak || owned' property if needed.
 class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsViewControllerDelegate {
-    private var score = Score.sharedInstance //Int = 0
-    var passes = Passes.sharedInstance //Int = 1
-    //FIXME: 'taskComplexity' should be implemented in Task?
-    var taskComplexity: Int = 0
+    private var score = Score.sharedInstance
+    internal var passes = Passes.sharedInstance
     
-    var currentTask = Task(complexity: 0)
-    var nextTask = Task(complexity: 1)
+    var currentTask = Task()
+    var nextTask = Task()
     
     let distanceForSlidingCard: CGFloat = -200
     var cards = [Card]()
@@ -34,21 +33,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     var previousPassedTranslationX: CGFloat = CGFloat(0)
     var snapBehaviorDamping: CGFloat = 0.250
     
-//    @IBOutlet weak var scoreStackView: UIStackView!
-//    @IBOutlet weak var passesStackView: UIStackView!
-//    var scoreLabel: UILabel!
-//    var passesLabel: UILabel!
-    
-    //FIXME: 'time' should be implemented by singleton AND like a separate module
     let time = Time.sharedInstance
-    var timer = Timer()
-    let intervalCallingTimerFunction: CGFloat = 0.05
-//    var isTimerRunning: Bool = false
-    var isTimeElapsed: Bool = false
-    var pausedTime: Date!
-
-    //FIXME: Should don be access to it from there. Get access from backside
-    var bottomItem = BottomItem.sharedInstance
     
     var backside = Backside.sharedInstance
     
@@ -62,9 +47,8 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         animator = UIDynamicAnimator(referenceView: self.view)
         // animator.setValue(true, forKey: "debugEnabled")
         
-        //FIXME: You should not have acces to it from there. Get access from backside
-        self.view.addSubview(bottomItem.view)
-        self.view.addConstraints(bottomItem.createViewConstraints(destinationViewController: self))
+        self.view.addSubview(backside.bottomItem.view)
+        self.view.addConstraints(backside.bottomItem.createViewConstraints(destinationViewController: self))
         
         //Creating cards
         for _ in 1...Card.cardsCount {
@@ -88,6 +72,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             } else {
                 card.content.addGestureRecognizer(questionTapGestureRecognizer)
             }
+            
             cardsViews.append(card.content)
             
             self.view.addConstraints(card.createViewConstraints(destinationViewController: self))
@@ -96,12 +81,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         //Add timer view
         self.view.addSubview(time.view)
         self.view.addConstraints(time.createViewConstraints(destinationViewController: self))
-        
-        //Add score and passes labels
-//        scoreStackView.isHidden = true
-//        scoreLabel = scoreStackView.arrangedSubviews[0] as! UILabel
-//        passesStackView.isHidden = true
-//        passesLabel = passesStackView.arrangedSubviews[0] as! UILabel
+        time.delegate = self
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -112,9 +92,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             card.defaultCenter = card.content.center
         }
         
-        //FIXME: Show EndScreen, when time is elapsed due you viewing another view (e.g. OperationScreen)
-        if isTimeElapsed {
-            print("\(isTimeElapsed) : isTimeElapsed")
+        if time.value <= 0 {
             self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
         }
     }
@@ -128,9 +106,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     }
     
     func tap(tap: UITapGestureRecognizer) {
-//        pauseTiming()
-//        delay(delay: 1, closure: resumeTiming)
-        
         self.performSegue(withIdentifier: "operationScreenSegue", sender: nil)
     }
     
@@ -144,10 +119,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         
         switch pan.state {
             case .began:
-                //Set previous touched cards to init default positions if user starts touching card due snaping
-                //FIXME: Cycles in this function is not a good idea?
-                for card in cards { card.content.center = card.defaultCenter }
-
                 //Set X offset of touched location and touched card's center
                 offsetBetweenTouchAndCardCenter.x = location.x - touchedCard.center.x
                 
@@ -165,13 +136,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 
                 backside.updateItemsWhenCardMoving(to: translation)
                 
-//                //Show score
-//                if translation.x > 0 {
-//                    scoreStackView.isHidden = false
-//                    passesStackView.isHidden = true
-//                    self.scoreLabel.text = String(self.score.value)
-//                }
-                
                 //Moving linked cards
                 //Move to right
                 if translation.x > xDistanceFromCardsStartsMovesTogether {
@@ -182,10 +146,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 }
                 //Move to left
                 if translation.x < 0 {
-//                    //Show passes
-//                    passesStackView.isHidden = false
-//                    scoreStackView.isHidden = true
-//                    passesLabel.text = String(passes.value)
                     
                     //Move cards to the left simultaneously
                     for card in cards {
@@ -218,47 +178,34 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 //FIXME: Ugly if-else pyramid. And hardcode values "left", "right", distanceForSlidingCard
                 //Slide away cards to right
                 if translation.x > abs(distanceForSlidingCard) {
-//                    if !isTimerRunning { startTiming() }
                     
                     //Check answer and edit score
                     if currentTask.checkAnswer(touchedCard: touchedCard.item) {
-                        self.score.value += 1
-                        self.taskComplexity += 1
-                        
-//                        self.scoreLabel.text = String(self.score)
-                        
-                        resetTiming()
-                        startTiming()
                         print("Correct answer :)")
+                        score.value += 1
+                        time.reset()
+                        time.start()
+                        
+                        slideAwayCards(to: .right)
                     } else {
-                        print("Wrong result :(")
-                        stopTiming() //MARK: It's not necessary because timer could still be running and then will be stopped.
-                        self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
+                        print("Wrong answer :(")
+                        gameOver()
                     }
-                    //FIXME: HArdcode "right"/"left"
-                    slideAwayCards(to: .right)
                 }
+                    
                 //Slide away cards to left
                 else if translation.x < distanceForSlidingCard {
-                    
-//                    passesLabel.text = String(passes)
-                    
-                    resetTiming()
-                    startTiming()
-                    
-                    self.taskComplexity += 1
-                    
                     //Decreese passes
                     if passes.value < 1 {
-                        pauseTiming()
                         self.performSegue(withIdentifier: "buyScreenSegue", sender: nil)
                     } else {
+                        time.reset()
+                        time.start()
                         passes.value -= 1
+                        
+                        slideAwayCards(to: .left)
                     }
-                    
-                    slideAwayCards(to: .left)
                 }
-            
             default: ()
         }
     }
@@ -305,7 +252,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         
         for card in cards {
             //Put next task to card
-            card.label.text = nextTask.getLabel(to: card)
+            card.label.text = currentTask.getLabel(to: card)
             
             let viewWidth = self.view.bounds.width
             let cardWidth = card.content.bounds.width
@@ -334,10 +281,10 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             animator.addBehavior(snapBehavior)
         }
         
-        //Update nexTask
-        nextTask = Task(complexity: self.taskComplexity + 1)
+        print("\(Task.complexity) : Task.complexity -- complexity of the next task")
         print("\(score.value) : score.value in showNewCards")
-        print("\(taskComplexity) : taskComplexity in showNewCards")
+        //Update nexTask
+        nextTask = Task()
     }
     
     //Setting delegate to screen's view controllers for access to resetGame()
@@ -356,68 +303,21 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         }
     }
     
+    func gameOver() {
+        time.stop()
+        print("Game Over!")
+        self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
+    }
+    
     func resetGame() {
-        print("Reset Game!")
-        self.nextTask = Task(complexity: 1)
-        self.taskComplexity = 0
-        self.score.value = 0
-        resetTiming()
+        print("New Game!")
+        Task.resetComplexity()
+        nextTask = Task()
+        score.value = 0
+        time.reset()
         showNewCards()
     }
-    
-    func startTiming() {
-        timer = Timer.scheduledTimer(timeInterval: Double(intervalCallingTimerFunction), target: self, selector: #selector(CardsViewController.updateTimingView), userInfo: Date(), repeats: true)
-//        isTimerRunning = true
-    }
-    
-    func stopTiming() {
-        timer.invalidate()
-//        isTimerRunning = false
-    }
-    
-    func updateTimingView() {
-        let timeLength: CGFloat = 15
-        let elapsedTime = CGFloat(-(timer.userInfo as! Date).timeIntervalSinceNow)
-        let stepToChangeColor = (1 / (timeLength * (4/5))) * intervalCallingTimerFunction // 1 is final color value in view's color animation. And (4/5) is multiplicator for increasing speed of color changes.
-        let stepToChangeWidth = (self.view.bounds.width / timeLength) * intervalCallingTimerFunction
-        
-        //Changing view's color from green to red.
-        let color = time.view.backgroundColor?.cgColor.components, red = 0, green = 1, blue = 2, alpha = 3
-        time.view.backgroundColor = UIColor(red: (color![red] + stepToChangeColor), green: (color![green] - stepToChangeColor), blue: color![blue], alpha: color![alpha])
-        
-        //Changing view's width
-        time.view.frame = CGRect(x: 0, y: 0, width: (time.view.bounds.width - stepToChangeWidth), height: time.view.bounds.height)
-        
-        if elapsedTime > timeLength {
-            print("\(elapsedTime) : Time is elapsed")
-            isTimeElapsed = true
-            stopTiming() //We can not use resetTiming() because it will immediately set 'isTimeElapsed' to false.
-            self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
-        }
-    }
-    
-    func resetTiming() {
-        stopTiming()
-        isTimeElapsed = false
-        
-        time.resetViewToDefault()
-    }
-    
-    func pauseTiming() {
-        pausedTime = timer.userInfo as! Date
-        timer.invalidate()
-    }
-    
-    //FIXME: Need to delete. We can just restart timing.
-    func resumeTiming() {
-        print("resumeTiming()")
-        timer = Timer.init(timeInterval: Double(intervalCallingTimerFunction), target: self, selector: #selector(CardsViewController.updateTimingView), userInfo: pausedTime, repeats: true)
-        
-        RunLoop.current().add(timer, forMode: RunLoopMode.defaultRunLoopMode)
-        
-//        isTimerRunning = true
-    }
-    
+ 
     enum Direction {
         case left, right, up, down, unknown
     }

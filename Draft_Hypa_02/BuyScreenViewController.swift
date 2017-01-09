@@ -13,29 +13,23 @@ class BuyScreenViewController: UIViewController {
     var delegate: CardsViewControllerDelegate!
     var isBoughtPasses: Bool = false
 
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func viewDidAppear(_ animated: Bool) {
+        isBoughtPasses = false
     }
     
     @IBAction func buyPasses(_ sender: AnyObject) {
-        increasePasses()
+        delegate.passes.value += 1
+        isBoughtPasses = true
     }
     
     @IBAction func cancel(_ sender: AnyObject) {
         if isBoughtPasses {
-            delegate.resumeTiming()
+            Time.sharedInstance.reset()
+            delegate.passes.value -= 1
             self.dismiss(animated: true, completion: nil)
+            delegate.slideAwayCards(to: .left)
         } else {
-            delegate.resetGame()
             self.dismiss(animated: true, completion: nil)
         }
-        
-//        delegate.resetGame()
-//        self.dismiss(animated: true, completion: nil)
-    }
-    
-    private func increasePasses() {
-        delegate.passes.value += 1
-        isBoughtPasses = true
     }
 }

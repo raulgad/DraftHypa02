@@ -8,7 +8,7 @@
 
 import UIKit
 
-class EndScreenViewController: UIViewController {
+class EndScreenViewController: UIViewController{
     
     var delegate: CardsViewControllerDelegate!
     
