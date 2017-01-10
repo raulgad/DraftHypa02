@@ -14,7 +14,7 @@ class Time {
     private var timer = Timer()
     private let timeInterval: CGFloat = 0.05
     private(set) var value: CGFloat
-    let length: CGFloat = 15
+    let duration: CGFloat = 15
     var delegate: CardsViewControllerDelegate!
     var view: UIView
     var pinRightView: NSLayoutConstraint!
@@ -24,7 +24,7 @@ class Time {
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = UIColor.green()
         
-        value = length
+        value = duration
     }
     
     func createViewConstraints(destinationViewController: UIViewController) -> [NSLayoutConstraint] {
@@ -45,9 +45,9 @@ class Time {
     func reset() {
         stop()
         view.backgroundColor = UIColor.green()
-//        pinRightView.constant = 0
-        view.frame = CGRect(x: 0, y: 0, width: UIScreen.main().bounds.width, height: view.bounds.height)
-        value = length
+        pinRightView.constant = 0
+//        view.frame = CGRect(x: 0, y: 0, width: UIScreen.main().bounds.width, height: view.bounds.height)
+        value = duration
     }
     
     func pauseOrResume() {
@@ -58,28 +58,21 @@ class Time {
         value -= timeInterval
         
         //1 is final color value in view's color animation. And (4/5) is multiplicator for increasing speed of color changes.
-        let stepToChangeColor = (1 / (length * (4/5))) * timeInterval
+        let stepToChangeColor = (1 / (duration * (4/5))) * timeInterval
         //We get view width from main window's width
-        let stepToChangeWidth = (UIScreen.main().bounds.width / length) * timeInterval
+        let stepToChangeWidth = (UIScreen.main().bounds.width / duration) * timeInterval
         
         //Changing view's color from green to red.
         let color = view.backgroundColor?.cgColor.components, red = 0, green = 1, blue = 2, alpha = 3
         view.backgroundColor = UIColor(red: (color![red] + stepToChangeColor), green: (color![green] - stepToChangeColor), blue: color![blue], alpha: color![alpha])
         
         //Changing view's width
-//        pinRightView.constant -= stepToChangeWidth
-        view.frame = CGRect(x: 0, y: 0, width: (view.bounds.width - stepToChangeWidth), height: view.bounds.height)
+        pinRightView.constant -= stepToChangeWidth
+//        view.frame = CGRect(x: 0, y: 0, width: (view.bounds.width - stepToChangeWidth), height: view.bounds.height)
         
         if value <= 0 {
             print( "\(value) : Time is elapsed!")
             delegate.gameOver()
-            
-//            //If you want present endScreen directly from any viewcontroller.
-//            stop()
-//            let mainStoryboard = UIStoryboard(name: "Main", bundle: Bundle.main())
-//            let vc : UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "endScreenStoryboardID") as UIViewController
-//            let appDelegate = UIApplication.shared().delegate as! AppDelegate
-//            appDelegate.window?.rootViewController?.present(vc, animated: true, completion: nil)
         }
     }
 }

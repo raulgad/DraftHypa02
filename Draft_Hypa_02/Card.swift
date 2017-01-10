@@ -14,7 +14,7 @@ class Card {
     //Use 'number' for set number of the card in an 'UIView.tag' parameter
     private static var number: Int = 0
     private static var previousCardsContentForConstraint = UIView()
-    static let cardsCount: Int = 3
+    static let cardsCount: Int = 5
     
     var content: UIView
     var label: UILabel

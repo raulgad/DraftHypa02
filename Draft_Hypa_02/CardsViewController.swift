@@ -23,21 +23,23 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     var currentTask = Task()
     var nextTask = Task()
     
-    let distanceForSlidingCard: CGFloat = -200
+    let distanceWhichSlideCardsAway: CGFloat = -200
     var cards = [Card]()
-    //FIXME: Is 'cardsViews' neccessary when we can use 'cards'?
     var cardsViews = [UIView]()
-
-    var offsetBetweenTouchAndCardCenter = CGPoint.zero
-    var xDistanceFromCardsStartsMovesTogether: CGFloat = 120
-    var previousPassedTranslationX: CGFloat = CGFloat(0)
-    var snapBehaviorDamping: CGFloat = 0.250
     
     let time = Time.sharedInstance
     
     var backside = Backside.sharedInstance
     
-    var animator: UIDynamicAnimator! 
+    var animator: UIDynamicAnimator!
+    var attachmentBehavior: UIAttachmentBehavior!
+    var snapBehaviorDamping: CGFloat = 0.250
+    
+    var offsetBetweenTouchAndCardCenter = CGPoint.zero
+    //FIXME: Remove it, and use "let passedPoints = Int(translation.x / xDistanceFromCardsStartsMovesTogether)" in if translation.x > xDistanceFromCardsStartsMovesTogether {
+    var passedAttachmentPoints: Int = 1
+    var attachmentDistance: CGFloat = 80
+    
     var cardPanGestureRecognizer: UIPanGestureRecognizer!
     var questionTapGestureRecognizer: UITapGestureRecognizer!
     
@@ -115,52 +117,72 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             print("Error with unwrap pan.view")
             return
         }
-        var location = pan.location(in: self.view)
+        let location = pan.location(in: self.view)
+        
         
         switch pan.state {
             case .began:
-                //Set X offset of touched location and touched card's center
-                offsetBetweenTouchAndCardCenter.x = location.x - touchedCard.center.x
                 
-                //Set first translation of linked cards to default value
-                previousPassedTranslationX = CGFloat(0)
-            
                 animator.removeAllBehaviors()
             
-            case .changed:
-                //Moving touched card considering offset
-                location.x -= offsetBetweenTouchAndCardCenter.x
-                location.y = cards[touchedCard.tag].defaultCenter.y
-                touchedCard.center = location
-                let translationOffset = translation.x - previousPassedTranslationX
+                //FIXME: It using only for unable cards rotation -- remove it || move to function
+                let dynamicItemBehavior = UIDynamicItemBehavior(items: cardsViews)
+                dynamicItemBehavior.allowsRotation = false
+                animator.addBehavior(dynamicItemBehavior)
+            
+                attachmentBehavior = UIAttachmentBehavior.slidingAttachment(with: touchedCard, attachmentAnchor: location, axisOfTranslation: CGVector(dx: 0, dy: 1))
+                animator.addBehavior(attachmentBehavior)
+            
+                attachmentDistance = 80
+                passedAttachmentPoints = 1
                 
-                backside.updateItemsWhenCardMoving(to: translation)
-                
-                //Moving linked cards
-                //Move to right
-                if translation.x > xDistanceFromCardsStartsMovesTogether {
-                    //Calcute number of times that card passed xDistanceBetweenCards
-                    let passedPoints = Int(translation.x / xDistanceFromCardsStartsMovesTogether)
-                    
-                    moveCardsWithLag(touchedCard, passedPoints, translationOffset)
-                }
-                //Move to left
+                //Moving cards to the left
                 if translation.x < 0 {
-                    
-                    //Move cards to the left simultaneously
-                    for card in cards {
-                        card.content.center = CGPoint(x: (card.content.center.x + translationOffset), y: card.defaultCenter.y)
+                    for view in cardsViews {
+                        if view.tag < (cardsViews.count - 1) {
+                            let slidingAttachment = UIAttachmentBehavior.slidingAttachment(with: view, attachedTo: cardsViews[view.tag + 1], attachmentAnchor: cardsViews[view.tag + 1].center, axisOfTranslation: CGVector(dx: 0, dy: 1))
+                            animator.addBehavior(slidingAttachment)
+                        }
                     }
                 }
+            
+        case .changed:
+            
+                backside.updateItemsWhenCardMoving(to: translation)
+            
+                attachmentBehavior.anchorPoint = location
+            
+            //Moving cards to the right (with lag)
+            if translation.x > attachmentDistance {
+                if touchedCard.tag - passedAttachmentPoints >= 0 {
+                    //Set UIAttachmentBehavior.slidingAttachment to above card
+                    let slidingAttachment = UIAttachmentBehavior.slidingAttachment(
+                        with: cardsViews[touchedCard.tag - passedAttachmentPoints],
+                        attachedTo: cardsViews[touchedCard.tag - (passedAttachmentPoints - 1)],
+                        attachmentAnchor: cardsViews[touchedCard.tag - (passedAttachmentPoints - 1)].center,
+                        axisOfTranslation: CGVector(dx: 0, dy: 1))
+                    animator.addBehavior(slidingAttachment)
+                }
+                if touchedCard.tag + passedAttachmentPoints < cardsViews.count {
+                    //Set UIAttachmentBehavior.slidingAttachment to below card
+                    let slidingAttachment = UIAttachmentBehavior.slidingAttachment(
+                        with: cardsViews[touchedCard.tag + passedAttachmentPoints],
+                        attachedTo: cardsViews[touchedCard.tag + (passedAttachmentPoints - 1)],
+                        attachmentAnchor: cardsViews[touchedCard.tag + (passedAttachmentPoints - 1)].center,
+                        axisOfTranslation: CGVector(dx: 0, dy: 1))
+                    animator.addBehavior(slidingAttachment)
+                }
                 
-                //Saving current translation pass for translation movement
-                previousPassedTranslationX = translation.x
+                attachmentDistance += 80
+                passedAttachmentPoints += 1
+            }
             
             case .cancelled, .ended:
                 
                 animator.removeAllBehaviors()
                 
                 //Add UIDynamicItemBehavior to animator and turn off allowsRotation of the card
+                //FIXME: It using only for unable cards rotation -- remove it || move to function
                 let dynamicItemBehavior = UIDynamicItemBehavior(items: cardsViews)
                 dynamicItemBehavior.allowsRotation = false
                 animator.addBehavior(dynamicItemBehavior)
@@ -168,8 +190,8 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 //Set UISnapBehavior to cards
                 //FIXME: Cycles in this function is not a good idea?
                 for card in cards {
-                    //FIXME: Creating snap behaviors with same variable name
                     //Set UISnapBehavior to views
+                    //FIXME: Move to separate function
                     let snapBehavior = UISnapBehavior(item: card.content, snapTo: card.defaultCenter)
                     snapBehavior.damping = snapBehaviorDamping
                     animator.addBehavior(snapBehavior)
@@ -177,7 +199,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 
                 //FIXME: Ugly if-else pyramid. And hardcode values "left", "right", distanceForSlidingCard
                 //Slide away cards to right
-                if translation.x > abs(distanceForSlidingCard) {
+                if translation.x > abs(distanceWhichSlideCardsAway) {
                     
                     //Check answer and edit score
                     if currentTask.checkAnswer(touchedCard: touchedCard.item) {
@@ -194,7 +216,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 }
                     
                 //Slide away cards to left
-                else if translation.x < distanceForSlidingCard {
+                else if translation.x < distanceWhichSlideCardsAway {
                     //Decreese passes
                     if passes.value < 1 {
                         self.performSegue(withIdentifier: "buyScreenSegue", sender: nil)
@@ -267,15 +289,17 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 card.content.center.x = viewWidth + (cardWidth/2)
             }
             
-            //Update card's data
+            //Update card's color
             card.updateColor()
             
             //Turn off view's rotation
+            //FIXME: It using only for unable cards rotation -- remove it || move to function
             let dynamicItemBehavior = UIDynamicItemBehavior (items: [card.content])
             dynamicItemBehavior.allowsRotation = false
             animator.addBehavior(dynamicItemBehavior)
             
             //Set UISnapBehavior to cards for snaping to card's default position
+            //FIXME: Move to separate function
             let snapBehavior = UISnapBehavior(item: card.content, snapTo: card.defaultCenter)
             snapBehavior.damping = snapBehaviorDamping
             animator.addBehavior(snapBehavior)
