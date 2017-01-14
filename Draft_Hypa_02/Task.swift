@@ -124,7 +124,7 @@ struct Task {
     }
     
     func getLabel(to card: Card) -> String {
-        switch card.item {
+        switch card.type {
         case .Question:
             return question
         case .AnswerOne:
@@ -132,7 +132,7 @@ struct Task {
         case .AnswerTwo:
             return answerTwo
         default:
-            return "\(card.item) : 'card.item' property has incorrect value"
+            return "\(card.type) : 'card.item' property has incorrect value"
         }
     }
     

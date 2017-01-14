@@ -13,68 +13,116 @@ import UIKit
 class Card {
     //Use 'number' for set number of the card in an 'UIView.tag' parameter
     private static var number: Int = 0
-    private static var previousCardsContentForConstraint = UIView()
+    private static var previousCard: Card!
     static let cardsCount: Int = 3
     
-    var content: UIView
+    var view: UIView
     var label: UILabel
-    //FIXME: Parameter "defaultCenter" not in the right place, it should be realized like a parameter of an UIView?
-    var defaultCenter: CGPoint
-    let item: Item
+    var defaultCenter: CGPoint!
+    let type: Item
     
     init() {
-        content = UIView()
+        type = Item(rawValue: Card.number) ?? Item.Unknown
+        
+        view = UIView()
+        view.backgroundColor = UIColor.randomColor()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.tag = Card.number
+        view.layer.cornerRadius = (type == .Question) ? 0 : 4
+        
         label = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
         label.shadowColor = UIColor.white()
         label.textAlignment = .center
-        content.backgroundColor = UIColor.randomColor()
-        content.translatesAutoresizingMaskIntoConstraints = false
-        content.tag = Card.number
-        item = Item(rawValue: Card.number) ?? Item.Unknown
-        content.layer.cornerRadius = (item == .Question) ? 0 : 4
-        label.text = String(self.item)
-        content.addSubview(label)
-        defaultCenter = content.center
+        label.text = String(self.type)
+        view.addSubview(label)
         
         Card.number += 1
     }
     
-    func createViewConstraints(destinationViewController: UIViewController) -> [NSLayoutConstraint] {
-        //FIXME: Hardcode "0, 12, -12, 20, 13 ..."
-        let pinLeftCard = NSLayoutConstraint(item: self.content, attribute: NSLayoutAttribute.left, relatedBy: NSLayoutRelation.equal, toItem: destinationViewController.view, attribute: NSLayoutAttribute.left, multiplier: 1.0, constant: self.item == .Question ? 0 : 12)
-        let pinRightCard = NSLayoutConstraint(item: self.content, attribute: NSLayoutAttribute.right, relatedBy: NSLayoutRelation.equal, toItem: destinationViewController.view, attribute: NSLayoutAttribute.right, multiplier: 1.0, constant: self.item == .Question ? 0 : -12)
-        let topMarginCards = NSLayoutConstraint(item: self.content, attribute: NSLayoutAttribute.top, relatedBy: NSLayoutRelation.equal, toItem: self.item == .Question ? destinationViewController.view : Card.previousCardsContentForConstraint, attribute: self.item == .Question ? NSLayoutAttribute.top : NSLayoutAttribute.bottom, multiplier: 1.0, constant: self.item == .Question ? 20 : 13)
+    func setLayout(inView: UIView) { //-> [NSLayoutConstraint]
+//        let pinLeftCard = NSLayoutConstraint(item: self.view,
+//                                             attribute: NSLayoutAttribute.left,
+//                                             relatedBy: NSLayoutRelation.equal,
+//                                             toItem: inView,
+//                                             attribute: NSLayoutAttribute.left,
+//                                             multiplier: 1.0,
+//                                             constant: self.item == .Question ? 0 : 12)
+//        let pinRightCard = NSLayoutConstraint(item: self.view,
+//                                              attribute: NSLayoutAttribute.right,
+//                                              relatedBy: NSLayoutRelation.equal,
+//                                              toItem: inView,
+//                                              attribute: NSLayoutAttribute.right,
+//                                              multiplier: 1.0,
+//                                              constant: self.item == .Question ? 0 : -12)
+//        let topMarginCards = NSLayoutConstraint(item: self.view,
+//                                                attribute: NSLayoutAttribute.top,
+//                                                relatedBy: NSLayoutRelation.equal,
+//                                                toItem: self.item == .Question ? inView : Card.previousCardsViewForConstraint,
+//                                                attribute: self.item == .Question ? NSLayoutAttribute.top : NSLayoutAttribute.bottom,
+//                                                multiplier: 1.0,
+//                                                constant: self.item == .Question ? 20 : 13)
+//        
+//        //Create constant for decreasing view's height considering top-margins between views
+//        let heightMarginsDecrease = -(12 + (12/CGFloat(Card.cardsCount))*2)
+//        
+//        let heightMultiplierForQuestionCard = Card.cardsCount > 1 ? CGFloat(0.35) : 1
+//        let heightMultiplierForAnswerCards = Card.cardsCount > 1 ? ((1 - heightMultiplierForQuestionCard) / CGFloat(Card.cardsCount-1)) : 1
+//        
+//        let heightCard = NSLayoutConstraint(item: self.view,
+//                                            attribute: NSLayoutAttribute.height,
+//                                            relatedBy: NSLayoutRelation.equal,
+//                                            toItem: inView,
+//                                            attribute: NSLayoutAttribute.height,
+//                                            multiplier: self.item == .Question ? heightMultiplierForQuestionCard : heightMultiplierForAnswerCards,
+//                                            constant: heightMarginsDecrease)
+//        
+//        //Storing card's view for get access to an upper card in topMarginCards constraint
+//        Card.previousCardsViewForConstraint = self.view
+//        
+//        return [pinLeftCard, pinRightCard, topMarginCards, heightCard]
         
         //Create constant for decreasing view's height considering top-margins between views
         let heightMarginsDecrease = -(12 + (12/CGFloat(Card.cardsCount))*2)
         
         let heightMultiplierForQuestionCard = Card.cardsCount > 1 ? CGFloat(0.35) : 1
         let heightMultiplierForAnswerCards = Card.cardsCount > 1 ? ((1 - heightMultiplierForQuestionCard) / CGFloat(Card.cardsCount-1)) : 1
+        let isQuestionCard = self.type == .Question
         
-        let heightCard = NSLayoutConstraint(item: self.content, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.equal, toItem: destinationViewController.view, attribute: NSLayoutAttribute.height, multiplier: self.item == .Question ? heightMultiplierForQuestionCard : heightMultiplierForAnswerCards, constant: heightMarginsDecrease)
+        self.view.leadingAnchor.constraint(equalTo: inView.leadingAnchor,
+                                           constant: isQuestionCard ? 0 : 12).isActive = true
+        self.view.trailingAnchor.constraint(equalTo: inView.trailingAnchor,
+                                            constant: isQuestionCard ? 0 : -12).isActive = true
+        self.view.heightAnchor.constraint(equalTo: inView.heightAnchor,
+                                          multiplier: isQuestionCard ? heightMultiplierForQuestionCard : heightMultiplierForAnswerCards,
+                                          constant: heightMarginsDecrease).isActive = true
+        self.view.topAnchor.constraint(equalTo: isQuestionCard ? inView.topAnchor : Card.previousCard.view.bottomAnchor,
+                                       constant: isQuestionCard ? 20 : 13).isActive = true
         
-        //Storing card's view for get access to an upper card in topMarginCards constraint
-        Card.previousCardsContentForConstraint = self.content
+        //FIXME: Ugly code below is needed to set default position of the card. Setting default center in the viewDidAppear of CardsViewController doesn't work properly when UISnapBehavior.damping is 1 or bigger.
+        let questionViewHeight = heightMultiplierForQuestionCard * inView.frame.height + heightMarginsDecrease
+        let answerViewHeight = heightMultiplierForAnswerCards * inView.frame.height + heightMarginsDecrease
+        switch self.view.tag {
+        case 0:
+            defaultCenter = CGPoint(x: inView.center.x,
+                                    y: ((questionViewHeight / 2) + 20))
+        case 1:
+            defaultCenter = CGPoint(x: inView.center.x,
+                                    y: (Card.previousCard.defaultCenter.y + (questionViewHeight / 2) + (answerViewHeight / 2) + 13))
+        default :
+            defaultCenter = CGPoint(x: inView.center.x,
+                                    y: (Card.previousCard.defaultCenter.y + answerViewHeight + 13))
+        }
         
-        return [pinLeftCard, pinRightCard, topMarginCards, heightCard]
+        Card.previousCard = self
     }
     
     func updateColor() {
-        self.content.backgroundColor = UIColor.randomColor()
+        self.view.backgroundColor = UIColor.randomColor()
     }
     
-    //FIXME: What you will do if number of answers will be changed dynamically?
+    //FIXME: Set number of answers by number Cards.count
     enum Item: Int {
         case Question, AnswerOne, AnswerTwo, Unknown
-    }
-}
-
-//Extension for get card's item in an UIView
-extension UIView {
-    var item: Card.Item {
-        get {
-            return Card.Item(rawValue: self.tag) ?? Card.Item.Unknown
-        }
     }
 }
 
@@ -86,7 +134,6 @@ extension CGFloat {
 
 extension UIColor {
     static func randomColor() -> UIColor {
-        // If you wanted a random alpha, just create another random number for that too.
         return UIColor(red:   .random(),
                        green: .random(),
                        blue:  .random(),

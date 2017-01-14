@@ -14,7 +14,7 @@ class Score {
     //FIXME: Bad idea to give everybody access for changing the value. Maybe you should give access by delegate.
     var value: Int = 0 {
         didSet {
-            Backside.sharedInstance.bottomItem.updateScoreOrPassesInView()
+            Backside.sharedInstance.bottomItem.valueLabel.text = String(value)
         }
     }
     

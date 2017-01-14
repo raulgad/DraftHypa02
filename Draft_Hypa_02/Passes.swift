@@ -12,9 +12,9 @@ class Passes {
     static let sharedInstance: Passes = Passes()
     let name: String = "Passes"
     //FIXME: Bad idea to give everybody access for changing the value. Maybe you should give access by delegate.
-    var value: Int = 3 {
+    var value: Int = 300 {
         didSet {
-            Backside.sharedInstance.bottomItem.updateScoreOrPassesInView()
+            Backside.sharedInstance.bottomItem.valueLabel.text = String(value)
             Task.holdComplexity()
         }
     }

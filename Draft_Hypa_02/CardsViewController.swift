@@ -23,7 +23,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     var currentTask = Task()
     var nextTask = Task()
     
-    let distanceForSlidingCard: CGFloat = -200
+    let distanceWhichStartsSlideCardsAway: CGFloat = -200
     var cards = [Card]()
     //FIXME: Is 'cardsViews' neccessary when we can use 'cards'?
     var cardsViews = [UIView]()
@@ -31,10 +31,8 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     var offsetBetweenTouchAndCardCenter = CGPoint.zero
     var xDistanceFromCardsStartsMovesTogether: CGFloat = 120
     var previousPassedTranslationX: CGFloat = CGFloat(0)
-    var snapBehaviorDamping: CGFloat = 0.250
     
     let time = Time.sharedInstance
-    
     var backside = Backside.sharedInstance
     
     var animator: UIDynamicAnimator! 
@@ -48,61 +46,51 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         // animator.setValue(true, forKey: "debugEnabled")
         
         self.view.addSubview(backside.bottomItem.view)
-        self.view.addConstraints(backside.bottomItem.createViewConstraints(destinationViewController: self))
+//        self.view.addConstraints(backside.bottomItem.setLayout(inView: self.view))
+        backside.bottomItem.setLayout(inView: self.view)
         
         //Creating cards
         for _ in 1...Card.cardsCount {
             //Init card
             let card = Card()
-            self.view.addSubview(card.content)
-            cards.append(card)
-            
             //Get init task's text for cards
             card.label.text = currentTask.getLabel(to: card)
-            
             //Set UIPanGestureRecognizer to answer cards
             cardPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan(pan:)))
             cardPanGestureRecognizer.delegate = self
             //Set UITapGestureRecognizer to question card (top card)
             questionTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap(tap:)))
             questionTapGestureRecognizer.delegate = self
-            if card.item != Card.Item.Question {
-                card.content.addGestureRecognizer(cardPanGestureRecognizer)
-                card.content.isExclusiveTouch = true
-            } else {
-                card.content.addGestureRecognizer(questionTapGestureRecognizer)
-            }
+            card.view.addGestureRecognizer(card.type == Card.Item.Question ? questionTapGestureRecognizer : cardPanGestureRecognizer)
+            card.view.isExclusiveTouch = true
             
-            cardsViews.append(card.content)
+            cards.append(card)
+            cardsViews.append(card.view)
             
-            self.view.addConstraints(card.createViewConstraints(destinationViewController: self))
+            self.view.addSubview(card.view)
+//            self.view.addConstraints(card.createViewConstraints(destinationView: self.view))
+            card.setLayout(inView: self.view)
         }
         
         //Add timer view
         self.view.addSubview(time.view)
-        self.view.addConstraints(time.createViewConstraints(destinationViewController: self))
+//        self.view.addConstraints(time.setLayout(inView: self.view))
+        time.setLayout(inView: self.view)
         time.delegate = self
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         
-        //Set default center position of the card
-        for card in cards {
-            card.defaultCenter = card.content.center
-        }
+//        //Set default center position of the card
+//        for card in cards {
+//            card.defaultCenter = card.view.center
+//            print("\(card.view.center.y) : card.view.center.y")
+//        }
         
         if time.value <= 0 {
             self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
         }
-    }
-    
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
-    }
-    
-    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldBeRequiredToFailBy otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        return true
     }
     
     func tap(tap: UITapGestureRecognizer) {
@@ -142,14 +130,14 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                     //Calcute number of times that card passed xDistanceBetweenCards
                     let passedPoints = Int(translation.x / xDistanceFromCardsStartsMovesTogether)
                     
-                    moveCardsWithLag(touchedCard, passedPoints, translationOffset)
+                    moveCardsWithLapse(touchedCard, passedPoints, translationOffset)
                 }
                 //Move to left
                 if translation.x < 0 {
                     
                     //Move cards to the left simultaneously
                     for card in cards {
-                        card.content.center = CGPoint(x: (card.content.center.x + translationOffset), y: card.defaultCenter.y)
+                        card.view.center = CGPoint(x: (card.view.center.x + translationOffset), y: card.defaultCenter.y)
                     }
                 }
                 
@@ -161,32 +149,28 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 animator.removeAllBehaviors()
                 
                 //Add UIDynamicItemBehavior to animator and turn off allowsRotation of the card
-                let dynamicItemBehavior = UIDynamicItemBehavior(items: cardsViews)
-                dynamicItemBehavior.allowsRotation = false
-                animator.addBehavior(dynamicItemBehavior)
+                setDynamicItemBehavior(items: cardsViews)
                 
                 //Set UISnapBehavior to cards
-                //FIXME: Cycles in this function is not a good idea?
                 for card in cards {
-                    //FIXME: Creating snap behaviors with same variable name
                     //Set UISnapBehavior to views
-                    let snapBehavior = UISnapBehavior(item: card.content, snapTo: card.defaultCenter)
-                    snapBehavior.damping = snapBehaviorDamping
-                    animator.addBehavior(snapBehavior)
+                    setSnapBehavior(item: card.view, snapTo: card.defaultCenter)
                 }
                 
-                //FIXME: Ugly if-else pyramid. And hardcode values "left", "right", distanceForSlidingCard
+                //FIXME: Ugly if-else pyramid.
                 //Slide away cards to right
-                if translation.x > abs(distanceForSlidingCard) {
+                if translation.x > abs(distanceWhichStartsSlideCardsAway) {
                     
                     //Check answer and edit score
-                    if currentTask.checkAnswer(touchedCard: touchedCard.item) {
+                    if currentTask.checkAnswer(touchedCard: Card.Item(rawValue: touchedCard.tag)!) {
                         print("Correct answer :)")
                         score.value += 1
                         time.reset()
                         time.start()
                         
                         slideAwayCards(to: .right)
+                        //Show new cards with delay
+                        delay(delay: 0.25, closure:{_ in self.showNewCards(from: .left)})
                     } else {
                         print("Wrong answer :(")
                         gameOver()
@@ -194,7 +178,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 }
                     
                 //Slide away cards to left
-                else if translation.x < distanceForSlidingCard {
+                else if translation.x < distanceWhichStartsSlideCardsAway {
                     //Decreese passes
                     if passes.value < 1 {
                         self.performSegue(withIdentifier: "buyScreenSegue", sender: nil)
@@ -204,23 +188,25 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                         passes.value -= 1
                         
                         slideAwayCards(to: .left)
+                        //Show new cards with delay
+                        delay(delay: 0.25, closure:{_ in self.showNewCards(from: .right)})
                     }
                 }
             default: ()
         }
     }
     
-    func moveCardsWithLag(_ touchedCard: UIView, _ passedPoints: Int, _ translationOffset: CGFloat) {
+    func moveCardsWithLapse(_ touchedCard: UIView, _ passedPoints: Int, _ translationOffset: CGFloat) {
         //Moving linked cards
         for passedPoint in 1...passedPoints {
             if touchedCard.tag - passedPoint >= 0 {
                 //FIXME: Hardcode "cards[touchedView.tag - passedPoint]"
                 unowned let cardAbove = cards[touchedCard.tag - passedPoint]
-                cardAbove.content.center = CGPoint(x: (cardAbove.content.center.x + translationOffset), y: cardAbove.defaultCenter.y)
+                cardAbove.view.center = CGPoint(x: (cardAbove.view.center.x + translationOffset), y: cardAbove.defaultCenter.y)
             }
             if touchedCard.tag + passedPoint < cards.count {
                 unowned let cardUnder = cards[touchedCard.tag + passedPoint]
-                cardUnder.content.center = CGPoint(x: (cardUnder.content.center.x + translationOffset), y: cardUnder.defaultCenter.y)
+                cardUnder.view.center = CGPoint(x: (cardUnder.view.center.x + translationOffset), y: cardUnder.defaultCenter.y)
             }
         }
     }
@@ -229,23 +215,29 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         animator.removeAllBehaviors()
         //Add UIGravityBehavior for pushing cards
         let gravity = UIGravityBehavior(items: cardsViews)
-        if direction == .left {
-            gravity.gravityDirection = CGVector(dx: -20, dy: 0)
-        } else if direction == .right {
-            gravity.gravityDirection = CGVector(dx: 20, dy: 0)
+        let magnitude = 20
+        
+        switch direction {
+        case .left:
+            gravity.gravityDirection = CGVector(dx: -magnitude, dy: 0)
+        case .right:
+            gravity.gravityDirection = CGVector(dx: magnitude, dy: 0)
+        case .up:
+            gravity.gravityDirection = CGVector(dx: 0, dy: -magnitude)
+        case .down:
+            gravity.gravityDirection = CGVector(dx: 0, dy: magnitude)
+        default:
+            print("'slideAwayCards' not defined for this direction")
         }
         
         animator.addBehavior(gravity)
-        
-        //Show new cards with delay
-        delay(delay: 0.25, closure: showNewCards)
     }
     
     func delay (delay: Double, closure: () ->()) {
         DispatchQueue.main.after(when: .now() + delay, execute: closure)
     }
     
-    func showNewCards() {
+    func showNewCards(from direction: Direction) {
         currentTask = nextTask
         
         animator.removeAllBehaviors()
@@ -254,37 +246,45 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             //Put next task to card
             card.label.text = currentTask.getLabel(to: card)
             
-            let viewWidth = self.view.bounds.width
-            let cardWidth = card.content.bounds.width
-            
-            //Move cards to self.view's edge
-            //Move cards behind left edge
-            if card.content.center.x >= (viewWidth + (cardWidth/2)) {
-                card.content.center.x = ((cardWidth/2) - viewWidth)
-            }
-            //Move cards behind right edge
-            else if card.content.center.x <= (-cardWidth/2) {
-                card.content.center.x = viewWidth + (cardWidth/2)
-            }
-            
-            //Update card's data
+            //Update card's color
             card.updateColor()
             
-            //Turn off view's rotation
-            let dynamicItemBehavior = UIDynamicItemBehavior (items: [card.content])
-            dynamicItemBehavior.allowsRotation = false
-            animator.addBehavior(dynamicItemBehavior)
+            switch direction {
+            //CGAfFineTransform doesn't change the card.view.center (see documentation) thus UISnapBehavior snaps new cards from the wrong direction
+            case .left:
+               card.view.center.x = -self.view.center.x
+            case .right:
+                card.view.center.x = (self.view.bounds.width + self.view.center.x)
+            case .up:
+                card.view.center.y = -self.view.center.y
+            case .down:
+                card.view.center.y = (self.view.bounds.height + self.view.center.y)
+            default:
+                print("'showNewCards' not defined for this direction")
+            }
             
+            //Turn off view's rotation
+            setDynamicItemBehavior(items: [card.view])
             //Set UISnapBehavior to cards for snaping to card's default position
-            let snapBehavior = UISnapBehavior(item: card.content, snapTo: card.defaultCenter)
-            snapBehavior.damping = snapBehaviorDamping
-            animator.addBehavior(snapBehavior)
+            setSnapBehavior(item: card.view, snapTo: card.defaultCenter)
         }
         
         print("\(Task.complexity) : Task.complexity -- complexity of the next task")
         print("\(score.value) : score.value in showNewCards")
         //Update nexTask
         nextTask = Task()
+    }
+    
+    func setDynamicItemBehavior(items: [UIDynamicItem]) {
+        let dynamicItemBehavior = UIDynamicItemBehavior (items: items)
+        dynamicItemBehavior.allowsRotation = false
+        animator.addBehavior(dynamicItemBehavior)
+    }
+    
+    func setSnapBehavior(item: UIDynamicItem, snapTo point: CGPoint) {
+        let snapBehavior = UISnapBehavior(item: item, snapTo: point)
+        snapBehavior.damping = 5//0.250
+        animator.addBehavior(snapBehavior)
     }
     
     //Setting delegate to screen's view controllers for access to resetGame()
@@ -315,7 +315,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         nextTask = Task()
         score.value = 0
         time.reset()
-        showNewCards()
+        showNewCards(from: .left)
     }
  
     enum Direction {
