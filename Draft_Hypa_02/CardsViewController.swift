@@ -93,34 +93,18 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 animator.removeAllBehaviors()
             
             case .changed:
-                let touchedCardDefaultCenter = cards[touchedCard.tag].defaultCenter!
-//                //Offset between current and previous center.x
-//                //FIXME: xOffset incorrect when you move already moving cards
-//                let offset = translation - (touchedCard.center - touchedCardDefaultCenter)
-//                
                 backside.updateItemsWhenCardMoving(to: translation)
                 
                 //Move to right
                 if translation.x > 0 {
-//                    //Move touchedCard
-//                    touchedCard.center.x += offset.x
-                    
-//                    let distanceBetweenCards: CGFloat = 60//120
-                    //Moving linked cards
-//                    if translation.x > distanceBetweenCards {
-//                        //Calcute number of times that card passed xDistanceBetweenCards
-//                        let passedPoints = Int(translation.x / distanceBetweenCards)
-//                        
-//                        moveCardsWithLapse(touchedCard, passedPoints, offset)
-//                    }
                     moveWithLapse(cards: cards, direction: .right, distance: 60, pan: pan)
                 }
                 
                 //Move to left
                 if translation.x < 0 {
+                    let touchedCardDefaultCenter = cards[touchedCard.tag].defaultCenter!
                     //Move cards to the left simultaneously
                     for card in cards {
-//                        card.view.center.x += offset.x
                         card.view.center.x = touchedCardDefaultCenter.x + translation.x
                     }
                 }
@@ -161,59 +145,47 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         
         let touchedCardDefaultCenter = cards[touchedCard.tag].defaultCenter!
         //Offset between current and previous center.x
-        //FIXME: xOffset incorrect when you move already moving cards
-        let offset = translation - (touchedCard.center - touchedCardDefaultCenter)
+        //FIXME: xOffset incorrect when you move already moving cards because translation start from zero.
+        var offset = translation - (touchedCard.center - touchedCardDefaultCenter)
+        
+        //Calcute number of times that card passed xDistanceBetweenCards
+        var passedPoints = 0
+        
+        //Set to 0 card's coordinat that shouln't change and set passedPoints
+        switch direction {
+        case .left, .right:
+            offset.y = 0
+            passedPoints = abs(Int(translation.x / distance))
+        case .up, .down:
+            offset.x = 0
+            passedPoints = abs(Int(translation.y / distance))
+        case .any:
+            passedPoints = abs(Int(translation.length() / distance))
+        default:
+            print("'moveWithLapse()' not defined for this direction")
+        }
         
         //Move touchedCard
-        touchedCard.center.x += offset.x
+        touchedCard.center += offset
         
-        if translation.x > distance {
-            //Calcute number of times that card passed xDistanceBetweenCards
-            let passedPoints = Int(translation.x / distance)
-            
-            //Сondition for don't do unnecessary cycles
-            if passedPoints <= cards.count {
-                //Change center of the cards that start moving after touchedCard pass the passedPoints
-                for passedPoint in 1...passedPoints {
-                    let indexCardAboveTouchedCard = touchedCard.tag - passedPoint
-                    //Check if array of cards has card above of the touchedCard
-                    if indexCardAboveTouchedCard >= 0 {
-                        //Set new position to card above touchedCard
-                        cards[indexCardAboveTouchedCard].view.center.x += offset.x
-                    }
-                    let indexCardUnderTouchedCard = touchedCard.tag + passedPoint
-                    //Check if array of cards has card under of the touchedCard
-                    if indexCardUnderTouchedCard < cards.count {
-                        //Set new position to card under touchedCard
-                        cards[indexCardUnderTouchedCard].view.center.x += offset.x
-                    }
+        if passedPoints > 0 && passedPoints <= cards.count {
+            //Change center of the cards that start moving after touchedCard pass the passedPoints
+            for passedPoint in 1...passedPoints {
+                let indexCardAboveTouchedCard = touchedCard.tag - passedPoint
+                //Check if array of cards has card above of the touchedCard
+                if indexCardAboveTouchedCard >= 0 {
+                    //Set new position to card above touchedCard
+                    cards[indexCardAboveTouchedCard].view.center += offset
+                }
+                let indexCardUnderTouchedCard = touchedCard.tag + passedPoint
+                //Check if array of cards has card under of the touchedCard
+                if indexCardUnderTouchedCard < cards.count {
+                    //Set new position to card under touchedCard
+                    cards[indexCardUnderTouchedCard].view.center += offset
                 }
             }
         }
     }
-
-    
-    
-//    func moveCardsWithLapse(_ touchedCard: UIView, _ passedPoints: Int, _ offset: CGPoint) {
-//        //Сondition for don't do unnecessary cycles
-//        if passedPoints <= cards.count {
-//            //Change center of the cards that start moving after touchedCard pass the passedPoints
-//            for passedPoint in 1...passedPoints {
-//                let indexCardAboveTouchedCard = touchedCard.tag - passedPoint
-//                //Check if array of cards has card above of the touchedCard
-//                if indexCardAboveTouchedCard >= 0 {
-//                    //Set new position to card above touchedCard
-//                    cards[indexCardAboveTouchedCard].view.center.x += offset.x
-//                }
-//                let indexCardUnderTouchedCard = touchedCard.tag + passedPoint
-//                //Check if array of cards has card under of the touchedCard
-//                if indexCardUnderTouchedCard < cards.count {
-//                    //Set new position to card under touchedCard
-//                    cards[indexCardUnderTouchedCard].view.center.x += offset.x
-//                }
-//            }
-//        }
-//    }
 
     func showNewCards(from: Direction) {
         slideAway(cards: cards.map{$0.view},
@@ -242,7 +214,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         case .down:
             gravity.gravityDirection = CGVector(dx: 0, dy: magnitude)
         default:
-            print("'slideAwayCards' not defined for this direction")
+            print("'slideAwayCards()' not defined for this direction")
         }
         
         animator.addBehavior(gravity)
@@ -282,7 +254,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             case .down:
                 card.view.center.y = (self.view.bounds.height + self.view.center.y)
             default:
-                print("'showNewCards' not defined for this direction")
+                print("'showNewCards()' not defined for this direction")
             }
             
             //Turn off view's rotation
@@ -367,7 +339,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     }
  
     enum Direction {
-        case left, right, up, down, unknown
+        case left, right, up, down, any, unknown
     }
 }
 
@@ -380,10 +352,16 @@ public func - (left: CGPoint, right: CGPoint) -> CGPoint {
     return CGPoint(x: left.x - right.x, y: left.y - right.y)
 }
 
-//public func += (left: inout CGPoint, right: CGPoint) {
-//    left = left + right
-//}
-//
-//public func -= (left: inout CGPoint, right: CGPoint) {
-//    left = left - right
-//}
+public func += (left: inout CGPoint, right: CGPoint) {
+    left = left + right
+}
+
+public func -= (left: inout CGPoint, right: CGPoint) {
+    left = left - right
+}
+
+public extension CGPoint {
+    public func length() -> CGFloat {
+        return sqrt(x*x + y*y)
+    }
+}
