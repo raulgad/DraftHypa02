@@ -12,7 +12,7 @@ protocol CardsViewControllerDelegate {
     var passes: Passes { get set }
     func resetGame()
     func gameOver()
-    func slideAwayCards(to :CardsViewController.Direction)
+    func showNewCards(from: CardsViewController.Direction)
 }
 
 //FIXME: Check and set all variables to 'weak || owned' property if needed.
@@ -23,14 +23,8 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     var currentTask = Task()
     var nextTask = Task()
     
-    let distanceWhichStartsSlideCardsAway: CGFloat = -200
+    
     var cards = [Card]()
-    //FIXME: Is 'cardsViews' neccessary when we can use 'cards'?
-    var cardsViews = [UIView]()
-
-    var offsetBetweenTouchAndCardCenter = CGPoint.zero
-    var xDistanceFromCardsStartsMovesTogether: CGFloat = 120
-    var previousPassedTranslationX: CGFloat = CGFloat(0)
     
     let time = Time.sharedInstance
     var backside = Backside.sharedInstance
@@ -43,10 +37,9 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         super.viewDidLoad()
         
         animator = UIDynamicAnimator(referenceView: self.view)
-        // animator.setValue(true, forKey: "debugEnabled")
+//        animator.setValue(true, forKey: "debugEnabled")
         
         self.view.addSubview(backside.bottomItem.view)
-//        self.view.addConstraints(backside.bottomItem.setLayout(inView: self.view))
         backside.bottomItem.setLayout(inView: self.view)
         
         //Creating cards
@@ -65,28 +58,19 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             card.view.isExclusiveTouch = true
             
             cards.append(card)
-            cardsViews.append(card.view)
             
             self.view.addSubview(card.view)
-//            self.view.addConstraints(card.createViewConstraints(destinationView: self.view))
             card.setLayout(inView: self.view)
         }
         
         //Add timer view
         self.view.addSubview(time.view)
-//        self.view.addConstraints(time.setLayout(inView: self.view))
         time.setLayout(inView: self.view)
         time.delegate = self
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        
-//        //Set default center position of the card
-//        for card in cards {
-//            card.defaultCenter = card.view.center
-//            print("\(card.view.center.y) : card.view.center.y")
-//        }
         
         if time.value <= 0 {
             self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
@@ -103,53 +87,49 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             print("Error with unwrap pan.view")
             return
         }
-        var location = pan.location(in: self.view)
         
         switch pan.state {
             case .began:
-                //Set X offset of touched location and touched card's center
-                offsetBetweenTouchAndCardCenter.x = location.x - touchedCard.center.x
-                
-                //Set first translation of linked cards to default value
-                previousPassedTranslationX = CGFloat(0)
-            
                 animator.removeAllBehaviors()
             
             case .changed:
-                //Moving touched card considering offset
-                location.x -= offsetBetweenTouchAndCardCenter.x
-                location.y = cards[touchedCard.tag].defaultCenter.y
-                touchedCard.center = location
-                let translationOffset = translation.x - previousPassedTranslationX
-                
+                let touchedCardDefaultCenter = cards[touchedCard.tag].defaultCenter!
+//                //Offset between current and previous center.x
+//                //FIXME: xOffset incorrect when you move already moving cards
+//                let offset = translation - (touchedCard.center - touchedCardDefaultCenter)
+//                
                 backside.updateItemsWhenCardMoving(to: translation)
                 
-                //Moving linked cards
                 //Move to right
-                if translation.x > xDistanceFromCardsStartsMovesTogether {
-                    //Calcute number of times that card passed xDistanceBetweenCards
-                    let passedPoints = Int(translation.x / xDistanceFromCardsStartsMovesTogether)
+                if translation.x > 0 {
+//                    //Move touchedCard
+//                    touchedCard.center.x += offset.x
                     
-                    moveCardsWithLapse(touchedCard, passedPoints, translationOffset)
+//                    let distanceBetweenCards: CGFloat = 60//120
+                    //Moving linked cards
+//                    if translation.x > distanceBetweenCards {
+//                        //Calcute number of times that card passed xDistanceBetweenCards
+//                        let passedPoints = Int(translation.x / distanceBetweenCards)
+//                        
+//                        moveCardsWithLapse(touchedCard, passedPoints, offset)
+//                    }
+                    moveWithLapse(cards: cards, direction: .right, distance: 60, pan: pan)
                 }
+                
                 //Move to left
                 if translation.x < 0 {
-                    
                     //Move cards to the left simultaneously
                     for card in cards {
-                        card.view.center = CGPoint(x: (card.view.center.x + translationOffset), y: card.defaultCenter.y)
+//                        card.view.center.x += offset.x
+                        card.view.center.x = touchedCardDefaultCenter.x + translation.x
                     }
                 }
-                
-                //Saving current translation pass for translation movement
-                previousPassedTranslationX = translation.x
             
             case .cancelled, .ended:
-                
                 animator.removeAllBehaviors()
-                
+                                
                 //Add UIDynamicItemBehavior to animator and turn off allowsRotation of the card
-                setDynamicItemBehavior(items: cardsViews)
+                setDynamicItemBehavior(items: cards.map{$0.view})
                 
                 //Set UISnapBehavior to cards
                 for card in cards {
@@ -157,64 +137,99 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                     setSnapBehavior(item: card.view, snapTo: card.defaultCenter)
                 }
                 
-                //FIXME: Ugly if-else pyramid.
-                //Slide away cards to right
-                if translation.x > abs(distanceWhichStartsSlideCardsAway) {
-                    
+                let distanceWhichCardsStartsSlideAway: CGFloat = 200
+                //Slide away cards to right and answer to question
+                if translation.x > distanceWhichCardsStartsSlideAway {
                     //Check answer and edit score
-                    if currentTask.checkAnswer(touchedCard: Card.Item(rawValue: touchedCard.tag)!) {
-                        print("Correct answer :)")
-                        score.value += 1
-                        time.reset()
-                        time.start()
-                        
-                        slideAwayCards(to: .right)
-                        //Show new cards with delay
-                        delay(delay: 0.25, closure:{_ in self.showNewCards(from: .left)})
-                    } else {
-                        print("Wrong answer :(")
-                        gameOver()
-                    }
+                    checkAnswer(touchedCard: Card.Item(rawValue: touchedCard.tag)!)
                 }
-                    
-                //Slide away cards to left
-                else if translation.x < distanceWhichStartsSlideCardsAway {
-                    //Decreese passes
-                    if passes.value < 1 {
-                        self.performSegue(withIdentifier: "buyScreenSegue", sender: nil)
-                    } else {
-                        time.reset()
-                        time.start()
-                        passes.value -= 1
-                        
-                        slideAwayCards(to: .left)
-                        //Show new cards with delay
-                        delay(delay: 0.25, closure:{_ in self.showNewCards(from: .right)})
-                    }
+                //Slide away cards to left and pass question
+                else if translation.x < -distanceWhichCardsStartsSlideAway {
+                    //Pass task and decrease passes
+                    passTask()
                 }
             default: ()
         }
     }
     
-    func moveCardsWithLapse(_ touchedCard: UIView, _ passedPoints: Int, _ translationOffset: CGFloat) {
-        //Moving linked cards
-        for passedPoint in 1...passedPoints {
-            if touchedCard.tag - passedPoint >= 0 {
-                //FIXME: Hardcode "cards[touchedView.tag - passedPoint]"
-                unowned let cardAbove = cards[touchedCard.tag - passedPoint]
-                cardAbove.view.center = CGPoint(x: (cardAbove.view.center.x + translationOffset), y: cardAbove.defaultCenter.y)
-            }
-            if touchedCard.tag + passedPoint < cards.count {
-                unowned let cardUnder = cards[touchedCard.tag + passedPoint]
-                cardUnder.view.center = CGPoint(x: (cardUnder.view.center.x + translationOffset), y: cardUnder.defaultCenter.y)
+    func moveWithLapse(cards: [Card], direction: Direction, distance: CGFloat, pan: UIPanGestureRecognizer) {
+        let translation = pan.translation(in: self.view)
+        guard let touchedCard = pan.view else {
+            print("Error with unwrap pan.view")
+            return
+        }
+        
+        let touchedCardDefaultCenter = cards[touchedCard.tag].defaultCenter!
+        //Offset between current and previous center.x
+        //FIXME: xOffset incorrect when you move already moving cards
+        let offset = translation - (touchedCard.center - touchedCardDefaultCenter)
+        
+        //Move touchedCard
+        touchedCard.center.x += offset.x
+        
+        if translation.x > distance {
+            //Calcute number of times that card passed xDistanceBetweenCards
+            let passedPoints = Int(translation.x / distance)
+            
+            //Сondition for don't do unnecessary cycles
+            if passedPoints <= cards.count {
+                //Change center of the cards that start moving after touchedCard pass the passedPoints
+                for passedPoint in 1...passedPoints {
+                    let indexCardAboveTouchedCard = touchedCard.tag - passedPoint
+                    //Check if array of cards has card above of the touchedCard
+                    if indexCardAboveTouchedCard >= 0 {
+                        //Set new position to card above touchedCard
+                        cards[indexCardAboveTouchedCard].view.center.x += offset.x
+                    }
+                    let indexCardUnderTouchedCard = touchedCard.tag + passedPoint
+                    //Check if array of cards has card under of the touchedCard
+                    if indexCardUnderTouchedCard < cards.count {
+                        //Set new position to card under touchedCard
+                        cards[indexCardUnderTouchedCard].view.center.x += offset.x
+                    }
+                }
             }
         }
     }
+
     
-    func slideAwayCards(to direction: Direction) {
+    
+//    func moveCardsWithLapse(_ touchedCard: UIView, _ passedPoints: Int, _ offset: CGPoint) {
+//        //Сondition for don't do unnecessary cycles
+//        if passedPoints <= cards.count {
+//            //Change center of the cards that start moving after touchedCard pass the passedPoints
+//            for passedPoint in 1...passedPoints {
+//                let indexCardAboveTouchedCard = touchedCard.tag - passedPoint
+//                //Check if array of cards has card above of the touchedCard
+//                if indexCardAboveTouchedCard >= 0 {
+//                    //Set new position to card above touchedCard
+//                    cards[indexCardAboveTouchedCard].view.center.x += offset.x
+//                }
+//                let indexCardUnderTouchedCard = touchedCard.tag + passedPoint
+//                //Check if array of cards has card under of the touchedCard
+//                if indexCardUnderTouchedCard < cards.count {
+//                    //Set new position to card under touchedCard
+//                    cards[indexCardUnderTouchedCard].view.center.x += offset.x
+//                }
+//            }
+//        }
+//    }
+
+    func showNewCards(from: Direction) {
+        slideAway(cards: cards.map{$0.view},
+                  to: from == .left ? .right : .left)
+        delay(delay: 0.25, closure:{_ in
+            self.updateContentOf(cards: self.cards)
+            self.snapBack(cards: self.cards, from: from)})
+        print("\(Task.complexity) : Task.complexity -- complexity of the next task")
+        print("\(score.value) : score.value in showNewCards")
+    }
+    
+    func slideAway(cards: [UIDynamicItem], to direction: Direction) {
         animator.removeAllBehaviors()
+        
         //Add UIGravityBehavior for pushing cards
-        let gravity = UIGravityBehavior(items: cardsViews)
+        let gravity = UIGravityBehavior(items: cards)
         let magnitude = 20
         
         switch direction {
@@ -237,10 +252,8 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         DispatchQueue.main.after(when: .now() + delay, execute: closure)
     }
     
-    func showNewCards(from direction: Direction) {
+    func updateContentOf(cards: [Card]) {
         currentTask = nextTask
-        
-        animator.removeAllBehaviors()
         
         for card in cards {
             //Put next task to card
@@ -248,7 +261,16 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             
             //Update card's color
             card.updateColor()
-            
+        }
+        
+        //Update nexTask
+        nextTask = Task()
+    }
+    
+    func snapBack(cards: [Card], from direction: Direction) {
+        animator.removeAllBehaviors()
+        
+        for card in cards {
             switch direction {
             //CGAfFineTransform doesn't change the card.view.center (see documentation) thus UISnapBehavior snaps new cards from the wrong direction
             case .left:
@@ -268,11 +290,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             //Set UISnapBehavior to cards for snaping to card's default position
             setSnapBehavior(item: card.view, snapTo: card.defaultCenter)
         }
-        
-        print("\(Task.complexity) : Task.complexity -- complexity of the next task")
-        print("\(score.value) : score.value in showNewCards")
-        //Update nexTask
-        nextTask = Task()
     }
     
     func setDynamicItemBehavior(items: [UIDynamicItem]) {
@@ -303,10 +320,28 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         }
     }
     
-    func gameOver() {
-        time.stop()
-        print("Game Over!")
-        self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
+    func checkAnswer(touchedCard: Card.Item) {
+        if currentTask.checkAnswer(touchedCard: touchedCard) {
+            print("Correct answer :)")
+            score.value += 1
+            time.reset()
+            time.start()
+            showNewCards(from: .left)
+        } else {
+            print("Wrong answer :(")
+            gameOver()
+        }
+    }
+    
+    func passTask() {
+        if passes.value < 1 {
+            self.performSegue(withIdentifier: "buyScreenSegue", sender: nil)
+        } else {
+            time.reset()
+            time.start()
+            showNewCards(from: .right)
+            passes.value -= 1
+        }
     }
     
     func resetGame() {
@@ -317,8 +352,38 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         time.reset()
         showNewCards(from: .left)
     }
+    
+    func gameOver() {
+        time.stop()
+        print("Game Over!")
+        self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
+        
+//            //If you want present endScreen directly from any viewcontroller.
+//            stop()
+//            let mainStoryboard = UIStoryboard(name: "Main", bundle: Bundle.main())
+//            let vc : UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "endScreenStoryboardID") as UIViewController
+//            let appDelegate = UIApplication.shared().delegate as! AppDelegate
+//            appDelegate.window?.rootViewController?.present(vc, animated: true, completion: nil)
+    }
  
     enum Direction {
         case left, right, up, down, unknown
     }
 }
+
+//extensions to CGPoint
+public func + (left: CGPoint, right: CGPoint) -> CGPoint {
+    return CGPoint(x: left.x + right.x, y: left.y + right.y)
+}
+
+public func - (left: CGPoint, right: CGPoint) -> CGPoint {
+    return CGPoint(x: left.x - right.x, y: left.y - right.y)
+}
+
+//public func += (left: inout CGPoint, right: CGPoint) {
+//    left = left + right
+//}
+//
+//public func -= (left: inout CGPoint, right: CGPoint) {
+//    left = left - right
+//}

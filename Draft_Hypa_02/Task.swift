@@ -17,8 +17,8 @@ struct Task {
     //FIXME: Not sure if it good idea store task's operation by not private class variable
     static var taskOperation: Operation = .Addition
     var question = "No question"
-    var answerOne = "No first answer"
-    var answerTwo = "No second answer"
+    var answer1 = "No first answer"
+    var answer2 = "No second answer"
     private var summand1: Int!
     private var summand2: Int!
     private var correctAnswer = Card.Item.Unknown
@@ -70,11 +70,11 @@ struct Task {
     
     mutating private func setToProperties(result: Int, wrongResult: Int) {
         //Randomly set result and wrongResult to answers
-        answerOne = String([result, wrongResult].randomElement)
-        answerTwo = answerOne == String(result) ? String(wrongResult) : String(result)
+        answer1 = String([result, wrongResult].randomElement)
+        answer2 = answer1 == String(result) ? String(wrongResult) : String(result)
         
         //Set values to 'correctAnswer'
-        correctAnswer = (answerOne == String(result)) ? Card.Item.AnswerOne : Card.Item.AnswerTwo
+        correctAnswer = (answer1 == String(result)) ? Card.Item.AnswerOne : Card.Item.AnswerTwo
     }
     
     func getRandomFromMinToMax() -> Int {
@@ -128,9 +128,9 @@ struct Task {
         case .Question:
             return question
         case .AnswerOne:
-            return answerOne
+            return answer1
         case .AnswerTwo:
-            return answerTwo
+            return answer2
         default:
             return "\(card.type) : 'card.item' property has incorrect value"
         }

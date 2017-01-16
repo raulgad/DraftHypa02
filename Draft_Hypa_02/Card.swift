@@ -11,13 +11,20 @@ import UIKit
 
 //FIXME: Why using class and not struct? Struct is better for perfomance (it using stack and value type). Because we cannot assign new value to struct's property. See 'Protocol and Value Oriented Programming in UIKit Apps' WWDC video.
 class Card {
+    
+    
+    
     //Use 'number' for set number of the card in an 'UIView.tag' parameter
     private static var number: Int = 0
     private static var previousCard: Card!
-    static let cardsCount: Int = 3
+    static let cardsCount: Int = 8
+    
+    var label: UILabel
+    
+    
     
     var view: UIView
-    var label: UILabel
+//    FIXME: CGAffineTransform.identity instead defaultCenter
     var defaultCenter: CGPoint!
     let type: Item
     
@@ -27,7 +34,9 @@ class Card {
         view = UIView()
         view.backgroundColor = UIColor.randomColor()
         view.translatesAutoresizingMaskIntoConstraints = false
+        
         view.tag = Card.number
+        
         view.layer.cornerRadius = (type == .Question) ? 0 : 4
         
         label = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
@@ -39,47 +48,7 @@ class Card {
         Card.number += 1
     }
     
-    func setLayout(inView: UIView) { //-> [NSLayoutConstraint]
-//        let pinLeftCard = NSLayoutConstraint(item: self.view,
-//                                             attribute: NSLayoutAttribute.left,
-//                                             relatedBy: NSLayoutRelation.equal,
-//                                             toItem: inView,
-//                                             attribute: NSLayoutAttribute.left,
-//                                             multiplier: 1.0,
-//                                             constant: self.item == .Question ? 0 : 12)
-//        let pinRightCard = NSLayoutConstraint(item: self.view,
-//                                              attribute: NSLayoutAttribute.right,
-//                                              relatedBy: NSLayoutRelation.equal,
-//                                              toItem: inView,
-//                                              attribute: NSLayoutAttribute.right,
-//                                              multiplier: 1.0,
-//                                              constant: self.item == .Question ? 0 : -12)
-//        let topMarginCards = NSLayoutConstraint(item: self.view,
-//                                                attribute: NSLayoutAttribute.top,
-//                                                relatedBy: NSLayoutRelation.equal,
-//                                                toItem: self.item == .Question ? inView : Card.previousCardsViewForConstraint,
-//                                                attribute: self.item == .Question ? NSLayoutAttribute.top : NSLayoutAttribute.bottom,
-//                                                multiplier: 1.0,
-//                                                constant: self.item == .Question ? 20 : 13)
-//        
-//        //Create constant for decreasing view's height considering top-margins between views
-//        let heightMarginsDecrease = -(12 + (12/CGFloat(Card.cardsCount))*2)
-//        
-//        let heightMultiplierForQuestionCard = Card.cardsCount > 1 ? CGFloat(0.35) : 1
-//        let heightMultiplierForAnswerCards = Card.cardsCount > 1 ? ((1 - heightMultiplierForQuestionCard) / CGFloat(Card.cardsCount-1)) : 1
-//        
-//        let heightCard = NSLayoutConstraint(item: self.view,
-//                                            attribute: NSLayoutAttribute.height,
-//                                            relatedBy: NSLayoutRelation.equal,
-//                                            toItem: inView,
-//                                            attribute: NSLayoutAttribute.height,
-//                                            multiplier: self.item == .Question ? heightMultiplierForQuestionCard : heightMultiplierForAnswerCards,
-//                                            constant: heightMarginsDecrease)
-//        
-//        //Storing card's view for get access to an upper card in topMarginCards constraint
-//        Card.previousCardsViewForConstraint = self.view
-//        
-//        return [pinLeftCard, pinRightCard, topMarginCards, heightCard]
+    func setLayout(inView: UIView) {
         
         //Create constant for decreasing view's height considering top-margins between views
         let heightMarginsDecrease = -(12 + (12/CGFloat(Card.cardsCount))*2)
@@ -101,6 +70,7 @@ class Card {
         //FIXME: Ugly code below is needed to set default position of the card. Setting default center in the viewDidAppear of CardsViewController doesn't work properly when UISnapBehavior.damping is 1 or bigger.
         let questionViewHeight = heightMultiplierForQuestionCard * inView.frame.height + heightMarginsDecrease
         let answerViewHeight = heightMultiplierForAnswerCards * inView.frame.height + heightMarginsDecrease
+        
         switch self.view.tag {
         case 0:
             defaultCenter = CGPoint(x: inView.center.x,
