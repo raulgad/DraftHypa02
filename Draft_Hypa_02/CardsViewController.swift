@@ -21,17 +21,17 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     internal var passes = Passes.sharedInstance
     
     var currentTask = Task()
+    //MARK: 'nextTask' isn't necessary variable. It using just for prepare task before setting it in a card.
     var nextTask = Task()
     
-    
     var cards = [Card]()
+    //FIXME: Excessive variable 'previousCardTranslation'
+    var previousCardTranslation = CGPoint.zero
     
     let time = Time.sharedInstance
     var backside = Backside.sharedInstance
     
-    var animator: UIDynamicAnimator! 
-    var cardPanGestureRecognizer: UIPanGestureRecognizer!
-    var questionTapGestureRecognizer: UITapGestureRecognizer!
+    var animator: UIDynamicAnimator!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -49,10 +49,10 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             //Get init task's text for cards
             card.label.text = currentTask.getLabel(to: card)
             //Set UIPanGestureRecognizer to answer cards
-            cardPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan(pan:)))
+            let cardPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan(pan:)))
             cardPanGestureRecognizer.delegate = self
             //Set UITapGestureRecognizer to question card (top card)
-            questionTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap(tap:)))
+            let questionTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap(tap:)))
             questionTapGestureRecognizer.delegate = self
             card.view.addGestureRecognizer(card.type == Card.Item.Question ? questionTapGestureRecognizer : cardPanGestureRecognizer)
             card.view.isExclusiveTouch = true
@@ -87,22 +87,25 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             print("Error with unwrap pan.view")
             return
         }
+        let touchedCardDefaultCenter = cards[touchedCard.tag].defaultCenter!
         
         switch pan.state {
             case .began:
                 animator.removeAllBehaviors()
+                
+                //Reset previousCardTranslation to 0 when start touching card again. Neccessery for correst moves in already moving cards.
+                previousCardTranslation = CGPoint.zero
             
             case .changed:
                 backside.updateItemsWhenCardMoving(to: translation)
                 
                 //Move to right
                 if translation.x > 0 {
-                    moveWithLapse(cards: cards, direction: .right, distance: 60, pan: pan)
+                    moveWithLapse(cards: cards, direction: .left, distance: 60, pan: pan)
                 }
                 
                 //Move to left
                 if translation.x < 0 {
-                    let touchedCardDefaultCenter = cards[touchedCard.tag].defaultCenter!
                     //Move cards to the left simultaneously
                     for card in cards {
                         card.view.center.x = touchedCardDefaultCenter.x + translation.x
@@ -133,37 +136,34 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                     passTask()
                 }
             default: ()
+            
         }
     }
     
     func moveWithLapse(cards: [Card], direction: Direction, distance: CGFloat, pan: UIPanGestureRecognizer) {
-        let translation = pan.translation(in: self.view)
+        var translation = pan.translation(in: self.view)
         guard let touchedCard = pan.view else {
             print("Error with unwrap pan.view")
             return
         }
         
-        let touchedCardDefaultCenter = cards[touchedCard.tag].defaultCenter!
-        //Offset between current and previous center.x
-        //FIXME: xOffset incorrect when you move already moving cards because translation start from zero.
-        var offset = translation - (touchedCard.center - touchedCardDefaultCenter)
-        
-        //Calcute number of times that card passed xDistanceBetweenCards
-        var passedPoints = 0
-        
         //Set to 0 card's coordinat that shouln't change and set passedPoints
         switch direction {
         case .left, .right:
-            offset.y = 0
-            passedPoints = abs(Int(translation.x / distance))
+            translation.y = 0
         case .up, .down:
-            offset.x = 0
-            passedPoints = abs(Int(translation.y / distance))
+            translation.x = 0
         case .any:
-            passedPoints = abs(Int(translation.length() / distance))
+            break
         default:
             print("'moveWithLapse()' not defined for this direction")
         }
+        
+        //Calcute number of times that card passed xDistanceBetweenCards
+        let passedPoints = abs(Int(translation.length() / distance))
+        
+        //Offset between current and previous center.x
+        let offset = translation - previousCardTranslation
         
         //Move touchedCard
         touchedCard.center += offset
@@ -185,6 +185,8 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 }
             }
         }
+        //Save current translation to previousCardTranslation there because necessary translation's coordinat has benn setted to 0
+        previousCardTranslation = translation
     }
 
     func showNewCards(from: Direction) {
