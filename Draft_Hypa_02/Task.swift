@@ -9,130 +9,105 @@
 import Foundation
 
 struct Task {
-    static let plusMinusOperations: [(Int,Int)->Int] = [(+),(-)]
-    private(set) static var complexity: Int = 0
-    private static var numberOfStepsToChangeComplexity: Int = 5
-    private static var minForRandom: Int = 1
-    private static var maxForRandom: Int = 10
-    //FIXME: Not sure if it good idea store task's operation by not private class variable
-    static var taskOperation: Operation = .Addition
-    var question = "No question"
-    var answerOne = "No first answer"
-    var answerTwo = "No second answer"
-    private var summand1: Int!
-    private var summand2: Int!
-    private var correctAnswer = Card.Item.Unknown
+    private(set) static var currentStep: Int = 0
+    private static var numberOfStepsToChangeRange: Int = 5
+    private static var rangeOfSummands = [1, 10]
+    static var taskOperation: Operation = .addition
+
+    var question = "Question"
+    var answer = [Int: String]()
+    private var correctAnswer = Card.Item.unknown
     
     init() {
-        if Task.complexity > Task.numberOfStepsToChangeComplexity {
-            //Increase level of complexity
-            Task.numberOfStepsToChangeComplexity += 5
-            Task.minForRandom = Task.maxForRandom
-            Task.maxForRandom *= 2
-        //Reset to default range of random values
-        } else if Task.complexity < 2 {
-            Task.numberOfStepsToChangeComplexity = 5
-            Task.minForRandom = 1
-            Task.maxForRandom = 10
-        }
+        updateComplexity()
         
-        summand1 = getRandomFromMinToMax()
-        summand2 = getRandomFromMinToMax()
+        let min = Task.rangeOfSummands.min()!, max = Task.rangeOfSummands.max()!
+        
+        var summand1 = getRandom(from: min, to: max)
+        var summand2 = getRandom(from: min, to: max)
         
         switch Task.taskOperation {
-        case .Addition:
-            add()
-        case .Subtraction:
-            subtract()
-        case .Multiplication:
-            multiply()
-        case .Division:
-            divide()
+        case .addition:
+            setAnswers(result: summand1 + summand2)
+        
+        case .subtraction:
+            //Set 'summand2' a random from minValueForRandom to 'summand1', so that summand2 always be biger than summand1 (to avoid negative result)
+            summand2 = getRandom(from: min, to: summand1)
+            setAnswers(result: summand1 - summand2)
+        
+        case .multiplication:
+            setAnswers(result: summand1 * summand2)
+            
+        case .division:
+            //Set 'summand2' a random from 1 to 'summand1' for the first 5 questions and random from 1 to minValueForRandom for follow-up questions, so that summand2 always be biger than summand1
+            summand2 = getRandom(from: 1, to: min == 1 ? summand1 : min)
+            
+            //Remove modulo from first summand to get only integer result
+            if (summand1 % summand2) != 0 {summand1 -= (summand1 % summand2)}
+            setAnswers(result: summand1 / summand2)
+        
+        default:
+            print("Task.Operation is not defined for this operation")
         }
         
-        Task.complexity += 1
+        //Set question after summands was changed (e.g., in the subtract())
+        question = "\(summand1) \(Task.taskOperation.rawValue) \(summand2)"
+        
+        
+    }
+    
+    private func updateComplexity() {
+        if Task.currentStep > Task.numberOfStepsToChangeRange {
+            //Increase level of complexity by double 'rangeOfSummands'
+            Task.numberOfStepsToChangeRange += 5
+            let max = Task.rangeOfSummands.max()!
+            Task.rangeOfSummands = [max, max * 2]
+            //Reset to default range of random values
+        } else if Task.currentStep < 2 {
+            Task.numberOfStepsToChangeRange = 5
+            Task.rangeOfSummands = [1, 10]
+        }
+        
+        Task.currentStep += 1
     }
     
     //FIXME: Bad idea to give global access for reset complexity.
     static func resetComplexity() {
-        Task.complexity = 0
+        Task.currentStep = 0
     }
-    //FIXME: Bad idea to give global access for reset complexity.
+    //FIXME: Bad idea to give global access for hold complexity.
     static func holdComplexity() {
-        Task.complexity -= 1
+        Task.currentStep -= 1
     }
     
-    private func getWrongResult(summand1: Int, summand2: Int, result: Int) -> Int {
-        let randomFromOneToHalfResult = Int(arc4random_uniform(UInt32(result / 2))) + 1
-        let wrongResult = Task.plusMinusOperations.randomElement(result,randomFromOneToHalfResult)
-        return wrongResult
-    }
-    
-    mutating private func setToProperties(result: Int, wrongResult: Int) {
-        //Randomly set result and wrongResult to answers
-        answerOne = String([result, wrongResult].randomElement)
-        answerTwo = answerOne == String(result) ? String(wrongResult) : String(result)
-        
-        //Set values to 'correctAnswer'
-        correctAnswer = (answerOne == String(result)) ? Card.Item.AnswerOne : Card.Item.AnswerTwo
-    }
-    
-    func getRandomFromMinToMax() -> Int {
-        return Int(arc4random_uniform(UInt32((Task.maxForRandom - Task.minForRandom)))) + Task.minForRandom
-    }
-    
-    //Why we use 'mutating' if we already set 'mutating' in the setValuesToProperties()?
-    private mutating func add() {
-        //Plus operation
-        let result = summand1 + summand2
-        let wrongResult = getWrongResult(summand1: summand1, summand2: summand2, result: result)
-        setToProperties(result: result, wrongResult: wrongResult)
-        question = "\(summand1!) + \(summand2!)"
-    }
-    
-    private mutating func subtract() {
-        //Minus operation
-        //Set 'summand2' a random from minValueForRandom to 'summand1'
-        summand2 = Int(arc4random_uniform(UInt32((summand1 - Task.minForRandom)))) + Task.minForRandom
-        
-        let result = summand1 - summand2
-        let wrongResult = getWrongResult(summand1: summand1, summand2: summand2, result: result)
-        setToProperties(result: result, wrongResult: wrongResult)
-        question = "\(summand1!) - \(summand2!)"
-    }
-    
-    private mutating func multiply() {
-        //Multiply operation
-        let result = summand1 * summand2
-        let wrongResult = getWrongResult(summand1: summand1, summand2: summand2, result: result)
-        setToProperties(result: result, wrongResult: wrongResult)
-        question = "\(summand1!) x \(summand2!)"
-    }
-    
-    private mutating func divide() {
-        //Divide operation
-        //Set 'summand2' a random from 1 to 'summand1' for the first 5 questions and random from 1 to minValueForRandom for follow-up questions
-        summand2 = Int(arc4random_uniform(UInt32((Task.minForRandom == 1 ? summand1 : Task.minForRandom)))) + 1
-        
-        //Remove modulo from first summand
-        if (summand1 % summand2) != 0 {summand1! -= (summand1 % summand2)}
+    private mutating func setAnswers(result: Int) {
+        //Create set to store random unique values for answers
+        var randomValues = Set<Int>()
+        //Add result to the set
+        randomValues.insert(result)
 
-        let result = summand1 / summand2
-        let wrongResult = getWrongResult(summand1: summand1, summand2: summand2, result: result)
-        setToProperties(result: result, wrongResult: wrongResult)
-        question = "\(summand1!) ÷ \(summand2!)"
+        //We create wrong answer by take random number from range 'result/2' - 'result*1.5'. If we don't have enough numbers for cards (result < Card.count) We get random number from range 'result/2' - 'Card.count*1.5'
+        let numberOfAnswers = Card.count - 1
+        let min = result/2
+        let max = result < numberOfAnswers ? Int(Double(numberOfAnswers)*1.5) : Int(Double(result)*1.5)
+        while randomValues.count < numberOfAnswers { randomValues.insert(getRandom(from: min, to: max)) }
+        
+        //Setting random numbers to the answers. Answer's index start from 1.
+        for (index, value) in randomValues.enumerated() {
+            answer[index + 1] = String(value)
+            //Set correctAnswer
+            if value == result { correctAnswer = .answer(index + 1) }
+        }
     }
     
     func getLabel(to card: Card) -> String {
         switch card.item {
-        case .Question:
+        case .question:
             return question
-        case .AnswerOne:
-            return answerOne
-        case .AnswerTwo:
-            return answerTwo
+        case .answer(let number):
+            return answer[number] ?? "no answer setted"
         default:
-            return "\(card.item) : 'card.item' property has incorrect value"
+            return "getLabel() has not defined for this 'card.item': \(card.item)"
         }
     }
     
@@ -141,8 +116,12 @@ struct Task {
     }
 }
 
-enum Operation {
-    case Addition, Subtraction, Multiplication, Division
+enum Operation: String {
+    case addition = "+", subtraction = "-", multiplication = "x", division = "÷", unknown
+}
+
+public func getRandom(from min: Int, to max: Int) -> Int {
+    return Int(arc4random_uniform(UInt32((max - min)))) + min
 }
 
 extension Array {

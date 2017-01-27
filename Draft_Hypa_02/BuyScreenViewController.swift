@@ -27,7 +27,7 @@ class BuyScreenViewController: UIViewController {
             Time.sharedInstance.reset()
             delegate.passes.value -= 1
             self.dismiss(animated: true, completion: nil)
-            delegate.slideAwayCards(to: .left)
+            delegate.showNewCards(from: .left)
         } else {
             self.dismiss(animated: true, completion: nil)
         }

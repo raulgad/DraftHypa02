@@ -11,70 +11,91 @@ import UIKit
 
 //FIXME: Why using class and not struct? Struct is better for perfomance (it using stack and value type). Because we cannot assign new value to struct's property. See 'Protocol and Value Oriented Programming in UIKit Apps' WWDC video.
 class Card {
-    //Use 'number' for set number of the card in an 'UIView.tag' parameter
-    private static var number: Int = 0
-    private static var previousCardsContentForConstraint = UIView()
-    static let cardsCount: Int = 5
+    //FIXME: Card's design should be setted with UIStackview and UIScrollview by Interface Builder (IBDesignable?)
+    //Save previousCard for use in setLayout() and init()
+    private static var previousCard: Card!
+    //Number of cards in app
+    static let count: Int = 8
+    //FIXME: Use CGAffineTransform.identity instead defaultCenter
+    var defaultCenter = CGPoint()
     
-    var content: UIView
-    var label: UILabel
-    //FIXME: Parameter "defaultCenter" not in the right place, it should be realized like a parameter of an UIView?
-    var defaultCenter: CGPoint
+    var view: UIView
+    var label = UILabel()
     let item: Item
     
     init() {
-        content = UIView()
+        let currentCardNumber = Card.previousCard == nil ? 0 : (Card.previousCard.view.tag + 1)
+        
+        item = currentCardNumber == 0 ? .question : .answer(currentCardNumber)
+        
+        view = UIView()
+        view.backgroundColor = UIColor.randomColor()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.tag = currentCardNumber
+        
+        view.layer.cornerRadius = item == .question ? 0 : 4
+        
         label = UILabel(frame: CGRect(x: 0, y: 0, width: 200, height: 21))
         label.shadowColor = UIColor.white()
         label.textAlignment = .center
-        content.backgroundColor = UIColor.randomColor()
-        content.translatesAutoresizingMaskIntoConstraints = false
-        content.tag = Card.number
-        item = Item(rawValue: Card.number) ?? Item.Unknown
-        content.layer.cornerRadius = (item == .Question) ? 0 : 4
         label.text = String(self.item)
-        content.addSubview(label)
-        defaultCenter = content.center
-        
-        Card.number += 1
+        view.addSubview(label)
     }
     
-    func createViewConstraints(destinationViewController: UIViewController) -> [NSLayoutConstraint] {
-        //FIXME: Hardcode "0, 12, -12, 20, 13 ..."
-        let pinLeftCard = NSLayoutConstraint(item: self.content, attribute: NSLayoutAttribute.left, relatedBy: NSLayoutRelation.equal, toItem: destinationViewController.view, attribute: NSLayoutAttribute.left, multiplier: 1.0, constant: self.item == .Question ? 0 : 12)
-        let pinRightCard = NSLayoutConstraint(item: self.content, attribute: NSLayoutAttribute.right, relatedBy: NSLayoutRelation.equal, toItem: destinationViewController.view, attribute: NSLayoutAttribute.right, multiplier: 1.0, constant: self.item == .Question ? 0 : -12)
-        let topMarginCards = NSLayoutConstraint(item: self.content, attribute: NSLayoutAttribute.top, relatedBy: NSLayoutRelation.equal, toItem: self.item == .Question ? destinationViewController.view : Card.previousCardsContentForConstraint, attribute: self.item == .Question ? NSLayoutAttribute.top : NSLayoutAttribute.bottom, multiplier: 1.0, constant: self.item == .Question ? 20 : 13)
+    func setLayout(inView: UIView) {
         
-        //Create constant for decreasing view's height considering top-margins between views
-        let heightMarginsDecrease = -(12 + (12/CGFloat(Card.cardsCount))*2)
+        //Create constant for decreasing view's height considering top-margin between answers (12px)
+        let heightMarginsDecrease = -(12 + (12/CGFloat(Card.count))*2)
         
-        let heightMultiplierForQuestionCard = Card.cardsCount > 1 ? CGFloat(0.35) : 1
-        let heightMultiplierForAnswerCards = Card.cardsCount > 1 ? ((1 - heightMultiplierForQuestionCard) / CGFloat(Card.cardsCount-1)) : 1
+        let heightMultiplierForQuestion = Card.count > 1 ? CGFloat(0.35) : 1
+        let heightMultiplierForAnswer = Card.count > 1 ? ((1 - heightMultiplierForQuestion) / CGFloat(Card.count-1)) : 1
+        let isQuestionCard = self.item == .question
         
-        let heightCard = NSLayoutConstraint(item: self.content, attribute: NSLayoutAttribute.height, relatedBy: NSLayoutRelation.equal, toItem: destinationViewController.view, attribute: NSLayoutAttribute.height, multiplier: self.item == .Question ? heightMultiplierForQuestionCard : heightMultiplierForAnswerCards, constant: heightMarginsDecrease)
+        //FIXME: Workaround below is needed to set default position of the card. Setting default center in the viewDidAppear of CardsViewController doesn't work properly when UISnapBehavior.damping is 1 or bigger.
+        let questionCenter = (heightMultiplierForQuestion * inView.frame.height + heightMarginsDecrease) / 2
+        let answerCenter = (heightMultiplierForAnswer * inView.frame.height + heightMarginsDecrease) / 2
         
-        //Storing card's view for get access to an upper card in topMarginCards constraint
-        Card.previousCardsContentForConstraint = self.content
+        switch self.view.tag {
+        case 0:
+            defaultCenter = CGPoint(x: inView.center.x,
+                                    y: questionCenter + 20)
+        case 1:
+            defaultCenter = CGPoint(x: inView.center.x,
+                                    y: (Card.previousCard.defaultCenter.y + questionCenter + answerCenter + 13))
+        default :
+            defaultCenter = CGPoint(x: inView.center.x,
+                                    y: (Card.previousCard.defaultCenter.y + answerCenter*2 + 13))
+        }
         
-        return [pinLeftCard, pinRightCard, topMarginCards, heightCard]
+        //Set constraints to card
+        self.view.widthAnchor.constraint(equalTo: inView.widthAnchor,
+                                         multiplier: isQuestionCard ? 1 : 0.925).isActive = true
+        self.view.centerXAnchor.constraint(equalTo: inView.centerXAnchor).isActive = true
+        self.view.centerYAnchor.constraint(equalTo: inView.centerYAnchor,
+                                           constant: (defaultCenter.y - inView.center.y)).isActive = true
+        self.view.heightAnchor.constraint(equalTo: inView.heightAnchor,
+                                          multiplier: isQuestionCard ? heightMultiplierForQuestion : heightMultiplierForAnswer,
+                                          constant: heightMarginsDecrease).isActive = true
+
+        Card.previousCard = self
     }
     
     func updateColor() {
-        self.content.backgroundColor = UIColor.randomColor()
+        self.view.backgroundColor = UIColor.randomColor()
     }
     
-    //FIXME: What you will do if number of answers will be changed dynamically?
-    enum Item: Int {
-        case Question, AnswerOne, AnswerTwo, Unknown
+    enum Item {
+        case question, answer(Int), unknown
     }
 }
 
-//Extension for get card's item in an UIView
-extension UIView {
-    var item: Card.Item {
-        get {
-            return Card.Item(rawValue: self.tag) ?? Card.Item.Unknown
-        }
+func == (left: Card.Item, right: Card.Item) -> Bool {
+    switch (left, right) {
+    case (.answer(let a), .answer(let b))   where a == b: return true
+    case (.question, .question): return true
+    case (.unknown, .unknown): return true
+    default: return false
     }
 }
 
@@ -86,7 +107,6 @@ extension CGFloat {
 
 extension UIColor {
     static func randomColor() -> UIColor {
-        // If you wanted a random alpha, just create another random number for that too.
         return UIColor(red:   .random(),
                        green: .random(),
                        blue:  .random(),

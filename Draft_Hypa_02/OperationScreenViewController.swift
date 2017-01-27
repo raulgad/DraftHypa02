@@ -31,22 +31,22 @@ class OperationScreenViewController: UIViewController {
     }
 
     @IBAction func addition(_ sender: AnyObject) {
-        Task.taskOperation = Operation.Addition
+        Task.taskOperation = .addition
         resetGameAndCloseView()
     }
     
     @IBAction func subtraction(_ sender: AnyObject) {
-        Task.taskOperation = Operation.Subtraction
+        Task.taskOperation = .subtraction
         resetGameAndCloseView()
     }
     
     @IBAction func multiplication(_ sender: AnyObject) {
-        Task.taskOperation = Operation.Multiplication
+        Task.taskOperation = .multiplication
         resetGameAndCloseView()
     }
     
     @IBAction func division(_ sender: AnyObject) {
-        Task.taskOperation = Operation.Division
+        Task.taskOperation = .division
         resetGameAndCloseView()
     }
     
