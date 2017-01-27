@@ -47,7 +47,6 @@ class BottomItem {
     
     func updateViewWhenCardMoving(direction: CardsViewController.Direction) {
         switch direction {
-            
         case .left:
             if leadingAnchor.constant == ViewPosition.right.rawValue {
                 valueLabel.text = String(Score.sharedInstance.value)

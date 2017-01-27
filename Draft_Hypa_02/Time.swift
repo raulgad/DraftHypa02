@@ -10,15 +10,16 @@ import Foundation
 import UIKit
 
 class Time {
-    static let sharedInstance = Time()
+    static let sharedInstance = Time(duration: 15)
     private var timer = Timer()
-    private let timeInterval: CGFloat = 0.05
     private(set) var value: CGFloat
-    let duration: CGFloat = 15
+    let duration: CGFloat
     var delegate: CardsViewControllerDelegate!
     var view: UIView
     
-    private init() {
+    private init(duration: CGFloat) {
+        self.duration = duration
+        
         view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = UIColor.green()
@@ -34,10 +35,11 @@ class Time {
     }
     
     func start() {
+        let timeInterval: CGFloat = 0.05
         timer = Timer.scheduledTimer(timeInterval: Double(timeInterval),
                                      target: self,
                                      selector: #selector(updateView),
-                                     userInfo: Date(),
+                                     userInfo: timeInterval,
                                      repeats: true)
     }
     
@@ -57,16 +59,19 @@ class Time {
     }
     
     @objc func updateView() {
+        let timeInterval = timer.userInfo as! CGFloat
+        
+        //Decrease time value in each function call
         value -= timeInterval
         
         //1 is final color value in view's color animation. And (4/5) is multiplicator for increasing speed of color changes.
         let stepToChangeColor = (1 / (duration * (4/5))) * timeInterval
         //Changing view's color from green to red.
-        let color = view.backgroundColor?.cgColor.components, red = 0, green = 1, blue = 2, alpha = 3
-        view.backgroundColor = UIColor(red: (color![red] + stepToChangeColor),
-                                       green: (color![green] - stepToChangeColor),
-                                       blue: color![blue],
-                                       alpha: color![alpha])
+        let color = view.backgroundColor?.cgColor.components
+        view.backgroundColor = UIColor(red: color![0] + stepToChangeColor,
+                                       green: color![1] - stepToChangeColor,
+                                       blue: color![2],
+                                       alpha: color![3])
         
         //Changing view's width
         view.transform = CGAffineTransform(scaleX: (value/duration), y: 1)

@@ -31,7 +31,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     let time = Time.sharedInstance
     var backside = Backside.sharedInstance
     
-    var animator: UIDynamicAnimator!
+    var animator = UIDynamicAnimator()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,7 +43,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         backside.bottomItem.setLayout(inView: self.view)
         
         //Creating cards
-        for _ in 1...Card.cardsCount {
+        for _ in 1...Card.count {
             //Init card
             let card = Card()
             //Get init task's text for cards
@@ -54,7 +54,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             //Set UITapGestureRecognizer to question card (top card)
             let questionTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap(tap:)))
             questionTapGestureRecognizer.delegate = self
-            card.view.addGestureRecognizer(card.type == Card.Item.Question ? questionTapGestureRecognizer : cardPanGestureRecognizer)
+            card.view.addGestureRecognizer(card.item == .question ? questionTapGestureRecognizer : cardPanGestureRecognizer)
             card.view.isExclusiveTouch = true
             
             cards.append(card)
@@ -69,13 +69,13 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         time.delegate = self
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
-        
-        if time.value <= 0 {
-            self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
-        }
-    }
+//    override func viewDidAppear(_ animated: Bool) {
+//        super.viewDidAppear(animated)
+//        
+//        if time.value <= 0 {
+//            self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
+//        }
+//    }
     
     func tap(tap: UITapGestureRecognizer) {
         self.performSegue(withIdentifier: "operationScreenSegue", sender: nil)
@@ -83,11 +83,11 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     
     func pan(pan: UIPanGestureRecognizer) {
         let translation = pan.translation(in: self.view)
-        guard let touchedCard = pan.view else {
+        guard let touchedCardView = pan.view else {
             print("Error with unwrap pan.view")
             return
         }
-        let touchedCardDefaultCenter = cards[touchedCard.tag].defaultCenter!
+        let touchedCardDefaultCenter = cards[touchedCardView.tag].defaultCenter
         
         switch pan.state {
             case .began:
@@ -101,7 +101,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 
                 //Move to right
                 if translation.x > 0 {
-                    moveWithLapse(cards: cards, direction: .left, distance: 60, pan: pan)
+                    moveWithLapse(cards: cards, direction: .right, distance: 60, pan: pan)
                 }
                 
                 //Move to left
@@ -128,7 +128,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 //Slide away cards to right and answer to question
                 if translation.x > distanceWhichCardsStartsSlideAway {
                     //Check answer and edit score
-                    checkAnswer(touchedCard: Card.Item(rawValue: touchedCard.tag)!)
+                    checkAnswer(touchedCard: .answer(touchedCardView.tag))
                 }
                 //Slide away cards to left and pass question
                 else if translation.x < -distanceWhichCardsStartsSlideAway {
@@ -142,7 +142,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     
     func moveWithLapse(cards: [Card], direction: Direction, distance: CGFloat, pan: UIPanGestureRecognizer) {
         var translation = pan.translation(in: self.view)
-        guard let touchedCard = pan.view else {
+        guard let touchedCardView = pan.view else {
             print("Error with unwrap pan.view")
             return
         }
@@ -161,23 +161,24 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         
         //Calcute number of times that card passed xDistanceBetweenCards
         let passedPoints = abs(Int(translation.length() / distance))
+
         
-        //Offset between current and previous center.x
+        //Offset between current and previous card's center
         let offset = translation - previousCardTranslation
         
         //Move touchedCard
-        touchedCard.center += offset
+        touchedCardView.center += offset
         
         if passedPoints > 0 && passedPoints <= cards.count {
             //Change center of the cards that start moving after touchedCard pass the passedPoints
             for passedPoint in 1...passedPoints {
-                let indexCardAboveTouchedCard = touchedCard.tag - passedPoint
+                let indexCardAboveTouchedCard = touchedCardView.tag - passedPoint
                 //Check if array of cards has card above of the touchedCard
                 if indexCardAboveTouchedCard >= 0 {
                     //Set new position to card above touchedCard
                     cards[indexCardAboveTouchedCard].view.center += offset
                 }
-                let indexCardUnderTouchedCard = touchedCard.tag + passedPoint
+                let indexCardUnderTouchedCard = touchedCardView.tag + passedPoint
                 //Check if array of cards has card under of the touchedCard
                 if indexCardUnderTouchedCard < cards.count {
                     //Set new position to card under touchedCard
@@ -185,7 +186,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 }
             }
         }
-        //Save current translation to previousCardTranslation there because necessary translation's coordinat has benn setted to 0
+        //Save current translation to previousCardTranslation for calculate offset between current and previous card's center.
         previousCardTranslation = translation
     }
 
@@ -193,9 +194,11 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         slideAway(cards: cards.map{$0.view},
                   to: from == .left ? .right : .left)
         delay(delay: 0.25, closure:{_ in
+            self.currentTask = self.nextTask
             self.updateContentOf(cards: self.cards)
+            self.nextTask = Task()
             self.snapBack(cards: self.cards, from: from)})
-        print("\(Task.complexity) : Task.complexity -- complexity of the next task")
+        print("\(Task.currentStep) : Task.currentStep - complexity is currentStep/numberOfStepsToChangeRange")
         print("\(score.value) : score.value in showNewCards")
     }
     
@@ -227,18 +230,13 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     }
     
     func updateContentOf(cards: [Card]) {
-        currentTask = nextTask
-        
         for card in cards {
             //Put next task to card
-            card.label.text = currentTask.getLabel(to: card)
+            card.label.text = nextTask.getLabel(to: card)
             
             //Update card's color
             card.updateColor()
         }
-        
-        //Update nexTask
-        nextTask = Task()
     }
     
     func snapBack(cards: [Card], from direction: Direction) {
@@ -297,7 +295,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     func checkAnswer(touchedCard: Card.Item) {
         if currentTask.checkAnswer(touchedCard: touchedCard) {
             print("Correct answer :)")
-            score.value += 1
+            score.value += 1 
             time.reset()
             time.start()
             showNewCards(from: .left)
