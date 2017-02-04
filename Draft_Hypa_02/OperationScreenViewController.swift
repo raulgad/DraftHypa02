@@ -11,18 +11,14 @@ import UIKit
 class OperationScreenViewController: UIViewController {
     
     var delegate: CardsViewControllerDelegate!
-
-    @IBOutlet weak var additionButton: UIButton!
-    @IBOutlet weak var subtractionButton: UIButton!
-    @IBOutlet weak var multiplicationButton: UIButton!
-    @IBOutlet weak var divisionButton: UIButton!
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        additionButton.layer.cornerRadius = 8
-        subtractionButton.layer.cornerRadius = 8
-        multiplicationButton.layer.cornerRadius = 8
-        divisionButton.layer.cornerRadius = 8
+    //Corner radius of the buttons is setted in Interface Builder (in section 'User Defined Runtime Attributes' of the button)
+    
+    override func viewWillAppear(_ animated: Bool) {
+        //Add timing view to the operationScreen.
+        //FIXME: The right way: we must create all views (timing, score/passes, etc) in Interface Builder in the appropriate storyboard screens. 'Time' class must be 'TimeController'. The 'timeView' (= outlet in the 'OperationScreenViewController') we should set to the 'Time.sharedInstance.views' dictionary that we loop through to 'update' and 'reset' views.
+        self.view.addSubview(Time.sharedInstance.view)
+        Time.sharedInstance.setLayout(inView: self.view)
     }
     
     func resetGameAndCloseView() {
@@ -31,22 +27,22 @@ class OperationScreenViewController: UIViewController {
     }
 
     @IBAction func addition(_ sender: AnyObject) {
-        Task.taskOperation = .addition
+        Task.operation = .addition
         resetGameAndCloseView()
     }
     
     @IBAction func subtraction(_ sender: AnyObject) {
-        Task.taskOperation = .subtraction
+        Task.operation = .subtraction
         resetGameAndCloseView()
     }
     
     @IBAction func multiplication(_ sender: AnyObject) {
-        Task.taskOperation = .multiplication
+        Task.operation = .multiplication
         resetGameAndCloseView()
     }
     
     @IBAction func division(_ sender: AnyObject) {
-        Task.taskOperation = .division
+        Task.operation = .division
         resetGameAndCloseView()
     }
     

@@ -54,6 +54,11 @@
                                         <state key="normal" title="+">
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                <integer key="value" value="8"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="addition:" destination="xwk-UE-72V" eventType="touchUpInside" id="eHS-Ve-6if"/>
                                         </connections>
@@ -64,6 +69,11 @@
                                         <state key="normal" title="-">
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                <integer key="value" value="8"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="subtraction:" destination="xwk-UE-72V" eventType="touchUpInside" id="hTW-0V-St0"/>
                                         </connections>
@@ -74,6 +84,11 @@
                                         <state key="normal" title="×">
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                <integer key="value" value="8"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="multiplication:" destination="xwk-UE-72V" eventType="touchUpInside" id="q92-Ib-wiM"/>
                                         </connections>
@@ -84,6 +99,11 @@
                                         <state key="normal" title="÷">
                                             <color key="titleColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         </state>
+                                        <userDefinedRuntimeAttributes>
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                                <integer key="value" value="8"/>
+                                            </userDefinedRuntimeAttribute>
+                                        </userDefinedRuntimeAttributes>
                                         <connections>
                                             <action selector="division:" destination="xwk-UE-72V" eventType="touchUpInside" id="1O0-IS-hWv"/>
                                         </connections>
@@ -105,12 +125,6 @@
                             <constraint firstItem="nB2-Ou-RAS" firstAttribute="top" secondItem="Kpp-Pt-TZf" secondAttribute="bottom" id="gQk-dI-8H5"/>
                         </constraints>
                     </view>
-                    <connections>
-                        <outlet property="additionButton" destination="vfx-AF-RN9" id="cZi-oI-EPT"/>
-                        <outlet property="divisionButton" destination="MMI-Jx-Osj" id="vAD-jA-FDv"/>
-                        <outlet property="multiplicationButton" destination="lXp-TP-lCH" id="9dv-EI-cir"/>
-                        <outlet property="subtractionButton" destination="zhe-gJ-kr7" id="7rH-Po-vmk"/>
-                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="lVH-2z-ghb" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
@@ -146,7 +160,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="WRK-QO-CAG" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="244" y="1340"/>
+            <point key="canvasLocation" x="244" y="1381"/>
         </scene>
         <!--Buy Screen View Controller-->
         <scene sceneID="Zf8-Kd-gI9">

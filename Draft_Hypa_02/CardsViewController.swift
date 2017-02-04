@@ -63,19 +63,15 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             card.setLayout(inView: self.view)
         }
         
-        //Add timer view
-        self.view.addSubview(time.view)
-        time.setLayout(inView: self.view)
         time.delegate = self
     }
     
-//    override func viewDidAppear(_ animated: Bool) {
-//        super.viewDidAppear(animated)
-//        
-//        if time.value <= 0 {
-//            self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
-//        }
-//    }
+    override func viewWillAppear(_ animated: Bool) {
+        //Add timer view
+        //FIXME: The right way: we must create all views (timing, score/passes, etc) in Interface Builder in the appropriate storyboard screens. 'Time' class must be 'TimeController'. The 'timeView' (= outlet in the 'OperationScreenViewController') we should set to the 'Time.sharedInstance.views' dictionary that we loop through to 'update' and 'reset' views.
+        self.view.addSubview(time.view)
+        time.setLayout(inView: self.view)
+    }
     
     func tap(tap: UITapGestureRecognizer) {
         self.performSegue(withIdentifier: "operationScreenSegue", sender: nil)
@@ -283,9 +279,9 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     //Setting delegate to screen's view controllers for access to resetGame()
     override func prepare(for segue: UIStoryboardSegue, sender: AnyObject?) {
         switch segue.identifier!  {
-            case "endScreenSegue":
-                let destinationViewController = segue.destinationViewController as! EndScreenViewController
-                destinationViewController.delegate = self
+//            case "endScreenSegue":
+//                let destinationViewController = segue.destinationViewController as! EndScreenViewController
+//                destinationViewController.delegate = self
             case "operationScreenSegue":
                 let destinationViewController = segue.destinationViewController as! OperationScreenViewController
                 destinationViewController.delegate = self
@@ -332,14 +328,14 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     func gameOver() {
         time.stop()
         print("Game Over!")
-        self.performSegue(withIdentifier: "endScreenSegue", sender: nil)
         
-//            //If you want present endScreen directly from any viewcontroller.
-//            stop()
-//            let mainStoryboard = UIStoryboard(name: "Main", bundle: Bundle.main())
-//            let vc : UIViewController = mainStoryboard.instantiateViewController(withIdentifier: "endScreenStoryboardID") as UIViewController
-//            let appDelegate = UIApplication.shared().delegate as! AppDelegate
-//            appDelegate.window?.rootViewController?.present(vc, animated: true, completion: nil)
+        //FIXME: Workaround for show endScreen from any viewcontroller. Or we can dismiss all current modal viewcontrollers (by 'self.view.window?.rootViewController?.dismiss') and then present endScreen
+        let endScreen = UIStoryboard(name: "Main", bundle: Bundle.main()).instantiateViewController(withIdentifier: "endScreenStoryboardID") as! EndScreenViewController
+        //FIXME: There is assume that CardsViewController is always rootViewController of the window, but it would be right if we use appDelegate.window?.rootViewController?
+        let visibleViewController = self.presentedViewController ?? self
+        visibleViewController.present(endScreen, animated: true, completion: {
+            endScreen.delegate = self
+        })
     }
  
     enum Direction {

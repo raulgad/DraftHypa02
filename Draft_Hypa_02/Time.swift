@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 class Time {
-    static let sharedInstance = Time(duration: 15)
+    static let sharedInstance = Time(duration: 7)
     private var timer = Timer()
     private(set) var value: CGFloat
     let duration: CGFloat

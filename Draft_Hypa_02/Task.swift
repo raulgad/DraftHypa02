@@ -12,7 +12,7 @@ struct Task {
     private(set) static var currentStep: Int = 0
     private static var numberOfStepsToChangeRange: Int = 5
     private static var rangeOfSummands = [1, 10]
-    static var taskOperation: Operation = .addition
+    static var operation: Operation = .addition
 
     var question = "Question"
     var answer = [Int: String]()
@@ -26,7 +26,7 @@ struct Task {
         var summand1 = getRandom(from: min, to: max)
         var summand2 = getRandom(from: min, to: max)
         
-        switch Task.taskOperation {
+        switch Task.operation {
         case .addition:
             setAnswers(result: summand1 + summand2)
         
@@ -51,9 +51,7 @@ struct Task {
         }
         
         //Set question after summands was changed (e.g., in the subtract())
-        question = "\(summand1) \(Task.taskOperation.rawValue) \(summand2)"
-        
-        
+        question = "\(summand1) \(Task.operation.rawValue) \(summand2)"
     }
     
     private func updateComplexity() {

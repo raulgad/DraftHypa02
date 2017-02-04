@@ -18,7 +18,8 @@ class EndScreenViewController: UIViewController{
     
     @IBAction func cancel(_ sender: AnyObject) {
         delegate.resetGame()
-        self.dismiss(animated: true, completion: nil)
+        //Dismiss all view controllers above the root view controller.
+        self.view.window?.rootViewController?.dismiss(animated: true, completion: nil)
     }
 
 }
