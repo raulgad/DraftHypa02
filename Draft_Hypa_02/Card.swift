@@ -9,17 +9,20 @@
 import Foundation
 import UIKit
 
+//typealias CenterConstraint = (x: NSLayoutConstraint, y: NSLayoutConstraint)
+
 //FIXME: Why using class and not struct? Struct is better for perfomance (it using stack and value type). Because we cannot assign new value to struct's property. See 'Protocol and Value Oriented Programming in UIKit Apps' WWDC video.
 class Card {
     //FIXME: Card's design should be setted with UIStackview and UIScrollview by Interface Builder (IBDesignable?)
     //Save previousCard for use in setLayout() and init()
     private static var previousCard: Card!
     //Number of cards in app
-    static let count: Int = 8
+    static let count: Int = 3
     //FIXME: Use CGAffineTransform.identity instead defaultCenter
     var defaultCenter = CGPoint()
+    var center = (x: NSLayoutConstraint(), y: NSLayoutConstraint())
     
-    var view: UIView
+    var view = UIView()
     var label = UILabel()
     let item: Item
     
@@ -28,7 +31,6 @@ class Card {
         
         item = currentCardNumber == 0 ? .question : .answer(currentCardNumber)
         
-        view = UIView()
         view.backgroundColor = UIColor.randomColor()
         view.translatesAutoresizingMaskIntoConstraints = false
         
@@ -69,11 +71,13 @@ class Card {
         }
         
         //Set constraints to card
+        center.x = self.view.centerXAnchor.constraint(equalTo: inView.centerXAnchor)
+        center.x.isActive = true
+        center.y = self.view.centerYAnchor.constraint(equalTo: inView.centerYAnchor,
+                                           constant: (defaultCenter.y - inView.center.y))
+        center.y.isActive = true
         self.view.widthAnchor.constraint(equalTo: inView.widthAnchor,
                                          multiplier: isQuestionCard ? 1 : 0.925).isActive = true
-        self.view.centerXAnchor.constraint(equalTo: inView.centerXAnchor).isActive = true
-        self.view.centerYAnchor.constraint(equalTo: inView.centerYAnchor,
-                                           constant: (defaultCenter.y - inView.center.y)).isActive = true
         self.view.heightAnchor.constraint(equalTo: inView.heightAnchor,
                                           multiplier: isQuestionCard ? heightMultiplierForQuestion : heightMultiplierForAnswer,
                                           constant: heightMarginsDecrease).isActive = true

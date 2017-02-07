@@ -14,7 +14,7 @@ class OperationScreenViewController: UIViewController {
     
     //Corner radius of the buttons is setted in Interface Builder (in section 'User Defined Runtime Attributes' of the button)
     
-    override func viewWillAppear(_ animated: Bool) {
+    override func viewDidAppear(_ animated: Bool) {
         //Add timing view to the operationScreen.
         //FIXME: The right way: we must create all views (timing, score/passes, etc) in Interface Builder in the appropriate storyboard screens. 'Time' class must be 'TimeController'. The 'timeView' (= outlet in the 'OperationScreenViewController') we should set to the 'Time.sharedInstance.views' dictionary that we loop through to 'update' and 'reset' views.
         self.view.addSubview(Time.sharedInstance.view)

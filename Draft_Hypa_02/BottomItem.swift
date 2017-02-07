@@ -13,7 +13,7 @@ class BottomItem {
     static let sharedInstance = BottomItem()
     
     var view: UIStackView
-    weak var leadingAnchor: NSLayoutConstraint!
+    var leadingAnchor = NSLayoutConstraint()
     var valueLabel = UILabel()
     var nameLabel = UILabel()
     
@@ -26,6 +26,7 @@ class BottomItem {
         nameLabel.backgroundColor = #colorLiteral(red: 0.7540004253, green: 0, blue: 0.2649998069, alpha: 1)
         nameLabel.text = Score.sharedInstance.name
         
+        //FIXME: There must be two different stackviews for score and passes accordingly
         view = UIStackView(arrangedSubviews: [valueLabel, nameLabel])
         view.axis = .vertical
         view.contentMode = .scaleAspectFit

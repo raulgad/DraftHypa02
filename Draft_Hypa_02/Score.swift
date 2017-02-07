@@ -19,4 +19,9 @@ class Score {
     }
     
     private init() { }
+    
+    func reset() {
+        value = 0
+        Backside.sharedInstance.bottomItem.updateViewWhenCardMoving(direction: .left)
+    }
 }
