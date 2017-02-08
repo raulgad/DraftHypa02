@@ -79,7 +79,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             return
         }
 
-        
         switch pan.state {
             case .began:
                 removeAllAnimations(cards)
@@ -223,10 +222,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         self.view.layoutIfNeeded()
     }
     
-    func delay (delay: Double, closure: () ->()) {
-        DispatchQueue.main.after(when: .now() + delay, execute: closure)
-    }
-    
     func updateContentOf(cards: [Card]) {
         for card in cards {
             //Put next task to card
@@ -318,6 +313,10 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     enum Direction {
         case left, right, up, down, any, unknown
     }
+}
+
+public func delay (delay: Double, closure: () ->()) {
+    DispatchQueue.main.after(when: .now() + delay, execute: closure)
 }
 
 //extensions to CGPoint
