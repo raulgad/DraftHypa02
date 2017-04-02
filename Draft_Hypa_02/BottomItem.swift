@@ -13,60 +13,72 @@ class BottomItem {
     static let sharedInstance = BottomItem()
     
     var view: UIStackView
+//    var leadingAnchor = NSLayoutConstraint()
+//    var centerXAnchor = NSLayoutConstraint()
     var leadingAnchor = NSLayoutConstraint()
+    var trailingAnchor = NSLayoutConstraint()
+    var viewPosition: CGFloat!
     var valueLabel = UILabel()
     var nameLabel = UILabel()
     
     private init() {
-        valueLabel.font = UIFont(name: valueLabel.font.fontName, size: 100)
-        valueLabel.backgroundColor = #colorLiteral(red: 0.1991284192, green: 0.6028449535, blue: 0.9592232704, alpha: 1)
+        valueLabel.textColor = UIColor.lightGray()
+        valueLabel.font = UIFont.systemFont(ofSize: 120, weight: UIFontWeightThin)
+        valueLabel.numberOfLines = 2
+        valueLabel.minimumScaleFactor = 0.25
+        valueLabel.adjustsFontSizeToFitWidth = true
+        valueLabel.textAlignment = .center
         valueLabel.text = String(Score.sharedInstance.value)
         
-        nameLabel.font = UIFont(name: nameLabel.font.fontName, size: 24)
-        nameLabel.backgroundColor = #colorLiteral(red: 0.7540004253, green: 0, blue: 0.2649998069, alpha: 1)
+        nameLabel.textColor = UIColor.lightGray()
+        nameLabel.font = UIFont.systemFont(ofSize: 46, weight: UIFontWeightThin)
+        nameLabel.textAlignment = .center
         nameLabel.text = Score.sharedInstance.name
         
         //FIXME: There must be two different stackviews for score and passes accordingly
         view = UIStackView(arrangedSubviews: [valueLabel, nameLabel])
         view.axis = .vertical
-        view.contentMode = .scaleAspectFit
-        view.distribution = .fillProportionally
-        view.alignment = .leading
-        view.spacing = 0
+        view.distribution = .fill
+        view.alignment = .fill
+        view.spacing = -40
         view.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.isHidden = true
     }
     
     func setLayout(inView: UIView) {
-        leadingAnchor = self.view.leadingAnchor.constraint(equalTo: inView.leadingAnchor,
-                                                           constant: 12)
+        leadingAnchor = self.view.leadingAnchor.constraint(equalTo: inView.leadingAnchor, constant: 12)
         leadingAnchor.isActive = true
-        self.view.topAnchor.constraint(equalTo: inView.topAnchor,
-                                       constant: (0.65 * inView.bounds.height)).isActive = true
+        
+        trailingAnchor = self.view.trailingAnchor.constraint(equalTo: inView.trailingAnchor, constant: -12)
+        
+        self.view.bottomAnchor.constraint(equalTo: inView.bottomAnchor, constant: -12).isActive = true
+        self.view.widthAnchor.constraint(lessThanOrEqualTo: inView.widthAnchor, multiplier: 0.5).isActive = true
         self.view.heightAnchor.constraint(equalTo: inView.heightAnchor,
-                                          multiplier: 0.3).isActive = true
+                                          multiplier: 0.4).isActive = true
     }
     
     func updateViewWhenCardMoving(direction: CardsViewController.Direction) {
+        
         switch direction {
         case .left:
-            if leadingAnchor.constant == ViewPosition.right.rawValue {
+            if trailingAnchor.isActive {
+                trailingAnchor.isActive = false
+                leadingAnchor.isActive = true
                 valueLabel.text = String(Score.sharedInstance.value)
                 nameLabel.text = Score.sharedInstance.name
-                leadingAnchor.constant = ViewPosition.left.rawValue
             }
+            
         case .right:
-            if leadingAnchor.constant == ViewPosition.left.rawValue {
+            if leadingAnchor.isActive {
+                leadingAnchor.isActive = false
+                trailingAnchor.isActive = true
                 valueLabel.text = String(Passes.sharedInstance.value)
                 nameLabel.text = Passes.sharedInstance.name
-                leadingAnchor.constant = ViewPosition.right.rawValue
             }
         default:
             print("'updateViewWhenCardMoving' not defined for this direction")
         }
     }
     
-    enum ViewPosition: CGFloat {
-        case left = 12
-        case right = 242
-    }
 }

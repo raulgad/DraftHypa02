@@ -9,11 +9,12 @@
 import Foundation
 
 class Score {
+    //Create Singleton for score
     static let sharedInstance: Score = Score()
-    let name: String = "Score"
-    //FIXME: Bad idea to give everybody access for changing the value. Maybe you should give access by delegate.
+    let name: String = "score"
     var value: Int = 0 {
         didSet {
+            //Update score view
             Backside.sharedInstance.bottomItem.valueLabel.text = String(value)
         }
     }
@@ -22,6 +23,7 @@ class Score {
     
     func reset() {
         value = 0
+        //Set score view to default position (to the left edge)
         Backside.sharedInstance.bottomItem.updateViewWhenCardMoving(direction: .left)
     }
 }

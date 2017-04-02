@@ -24,10 +24,12 @@ class Backside {
         bottomItem.updateViewWhenCardMoving(direction: translation.x > 0 ? .left : .right)
     }
     
+    //Interface for future animation
     func updateItemsWhenGotAnswer(isCorrect isCorrectAnswer: Bool) {
         topItem.updateViewForAnswer(isCorrect: isCorrectAnswer)
     }
     
+    //Interface for future animation
     func updateItemsForTiming() {
         
     }

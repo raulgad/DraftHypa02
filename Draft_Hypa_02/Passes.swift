@@ -9,13 +9,16 @@
 import Foundation
 
 class Passes {
+    //Create Singleton for passes
     static let sharedInstance: Passes = Passes()
-    let name: String = "Passes"
-    //FIXME: Bad idea to give global access for changing the value. Maybe you should give access by delegate.
-    var value: Int = 50 {
+    let name: String = "passes"
+    var value: Int = 3 {
         didSet {
+            //Update passes view
             Backside.sharedInstance.bottomItem.valueLabel.text = String(value)
-            Task.holdComplexity()
+            
+            //Hold task's capacity
+            Task.holdCapacity()
         }
     }
     

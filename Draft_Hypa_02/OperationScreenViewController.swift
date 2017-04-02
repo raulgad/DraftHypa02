@@ -12,38 +12,35 @@ class OperationScreenViewController: UIViewController {
     
     var delegate: CardsViewControllerDelegate!
     
-    //Corner radius of the buttons is setted in Interface Builder (in section 'User Defined Runtime Attributes' of the button)
-    
     override func viewDidAppear(_ animated: Bool) {
-        //Add timing view to the operationScreen.
-        //FIXME: The right way: we must create all views (timing, score/passes, etc) in Interface Builder in the appropriate storyboard screens. 'Time' class must be 'TimeController'. The 'timeView' (= outlet in the 'OperationScreenViewController') we should set to the 'Time.sharedInstance.views' dictionary that we loop through to 'update' and 'reset' views.
+        //Add timing view to the screen.
         self.view.addSubview(Time.sharedInstance.view)
         Time.sharedInstance.setLayout(inView: self.view)
     }
     
-    func resetGameAndCloseView() {
+    func resetGameAndDismissView() {
         delegate.resetGame()
         self.dismiss(animated: true, completion: nil)
     }
 
     @IBAction func addition(_ sender: AnyObject) {
         Task.operation = .addition
-        resetGameAndCloseView()
+        resetGameAndDismissView()
     }
     
     @IBAction func subtraction(_ sender: AnyObject) {
         Task.operation = .subtraction
-        resetGameAndCloseView()
+        resetGameAndDismissView()
     }
     
     @IBAction func multiplication(_ sender: AnyObject) {
         Task.operation = .multiplication
-        resetGameAndCloseView()
+        resetGameAndDismissView()
     }
     
     @IBAction func division(_ sender: AnyObject) {
         Task.operation = .division
-        resetGameAndCloseView()
+        resetGameAndDismissView()
     }
     
     @IBAction func cancel(_ sender: AnyObject) {

@@ -10,10 +10,11 @@ import Foundation
 import UIKit
 
 class Time {
+    //Create Singleton for time
     static let sharedInstance = Time(duration: 15)
     private var timer = Timer()
     private(set) var value: CGFloat
-    let duration: CGFloat
+    var duration: CGFloat
     var delegate: CardsViewControllerDelegate!
     var view: UIView
     
@@ -64,7 +65,7 @@ class Time {
         //Decrease time value in each function call
         value -= timeInterval
         
-        //1 is final color value in view's color animation. And (4/5) is multiplicator for increasing speed of color changes.
+        //Create variable for change time's view color due function calls. '1' is final color value and '4/5' is multiplicator for increasing speed of color changes.
         let stepToChangeColor = (1 / (duration * (4/5))) * timeInterval
         
         //Changing view's color from green to red.
@@ -78,7 +79,7 @@ class Time {
         view.transform = CGAffineTransform(scaleX: (value/duration), y: 1)
         
         if value <= 0 {
-            print( "\(value) : Time is elapsed!")
+            //Time is elapsed
             delegate.gameOver()
         }
     }

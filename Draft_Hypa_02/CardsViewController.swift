@@ -15,21 +15,18 @@ protocol CardsViewControllerDelegate {
     func showNewCards(from: CardsViewController.Direction)
 }
 
-//FIXME: Check and set all variables to 'weak || owned' property if needed.
 class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsViewControllerDelegate {
     private var score = Score.sharedInstance
     internal var passes = Passes.sharedInstance
     
     var currentTask = Task()
-    //MARK: 'nextTask' isn't necessary variable. It using just for prepare task before setting it in a card.
     var nextTask = Task()
     
     var cards = [Card]()
-    //FIXME: Excessive variable 'previousCardTranslation'
     var previousCardTranslation = CGPoint.zero
     
     let time = Time.sharedInstance
-    var backside = Backside.sharedInstance
+    var backside = Backside.sharedInstance //where 'score'/'passes' (under the cards)
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -37,35 +34,49 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         self.view.addSubview(backside.bottomItem.view)
         backside.bottomItem.setLayout(inView: self.view)
         
-        //Creating cards
-        for _ in 1...Card.count {
-            //Init card
-            let card = Card()
-            //Get init task's text for cards
-            card.label.text = currentTask.getLabel(to: card)
-            //Set UIPanGestureRecognizer to answer cards
-            let cardPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan(pan:)))
-            cardPanGestureRecognizer.delegate = self
-            //Set UITapGestureRecognizer to question card (top card)
-            let questionTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap(tap:)))
-            questionTapGestureRecognizer.delegate = self
-            card.view.addGestureRecognizer(card.item == .question ? questionTapGestureRecognizer : cardPanGestureRecognizer)
-            card.view.isExclusiveTouch = true
-            
-            cards.append(card)
-            
-            self.view.addSubview(card.view)
-            card.setLayout(inView: self.view)
-        }
-        
+        createCards()
+
         time.delegate = self
     }
     
     override func viewWillAppear(_ animated: Bool) {
         //Add timer view
-        //FIXME: The right way: we must create all views (timing, score/passes, etc) in Interface Builder in the appropriate storyboard screens. 'Time' class must be 'TimeController'. The 'timeView' (= outlet in the 'OperationScreenViewController') we should set to the 'Time.sharedInstance.views' dictionary that we loop through to 'update' and 'reset' views.
         self.view.addSubview(time.view)
         time.setLayout(inView: self.view)
+    }
+    
+    func createCards() {
+        //Delete all previous cards
+        if !cards.isEmpty {
+            for card in cards { card.view.removeFromSuperview() }
+            cards = [Card]()
+        }
+        
+        //Create new cards
+        for _ in 1...Card.count {
+            //Init card
+            let card = Card()
+            
+            //Get task's text for cards
+            card.label.text = currentTask.getLabel(for: card)
+            
+            //Set UITapGestureRecognizer to 'question' card (top card)
+            let questionTapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(tap(tap:)))
+            questionTapGestureRecognizer.delegate = self
+            
+            //Set UIPanGestureRecognizer to 'answer' cards
+            let cardPanGestureRecognizer = UIPanGestureRecognizer(target: self, action: #selector(pan(pan:)))
+            cardPanGestureRecognizer.delegate = self
+            
+            card.view.addGestureRecognizer(card.item == .question ? questionTapGestureRecognizer : cardPanGestureRecognizer)
+            card.view.isExclusiveTouch = true
+            
+            cards.append(card)
+            
+            //Layout card in the view
+            self.view.addSubview(card.view)
+            card.setLayout(inView: self.view)
+        }
     }
     
     func tap(tap: UITapGestureRecognizer) {
@@ -83,10 +94,13 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             case .began:
                 removeAllAnimations(cards)
                 
-                //Reset previousCardTranslation to 0 when start touching card again. Neccessery for correct move in already moving cards.
+                //Reset previousCardTranslation to 0 when starts touching card again (it neccessery for correct move in already moving cards).
                 previousCardTranslation = CGPoint.zero
             
             case .changed:
+                //Show 'score' or 'passes' view.
+                backside.bottomItem.view.isHidden = false
+                
                 backside.updateItemsWhenCardMoving(to: translation)
                 
                 //Move to right
@@ -103,7 +117,11 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                 }
             
             case .cancelled, .ended:
+                //Hide 'score' or 'passes' view.
+                backside.bottomItem.view.isHidden = true
+                
                 let distanceWhichCardsStartsSlideAway: CGFloat = 200
+                
                 //Slide away cards to right and check answer
                 if translation.x > distanceWhichCardsStartsSlideAway {
                     //Check answer and edit score
@@ -115,6 +133,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                     passTask()
                 }
                 else {
+                    //Slide cards to default position if the user didn't choose anything.
                     snapToDefaultCenterAnimation(items: cards)
                 }
             
@@ -134,7 +153,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             return
         }
         
-        //Set to 0 card's coordinat that shouldn't change
+        //Set card's coordinats that shouldn't be change to 0.
         switch direction {
         case .left, .right:
             translation.y = 0
@@ -149,30 +168,31 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
         //Calcute number of times that card passed xDistanceBetweenCards
         let passedPoints = abs(Int(translation.length() / distance))
 
-        //Offset between current and previous card's center
+        //Offset between current and previous card's position (center)
         let offset = translation - previousCardTranslation
         
-        //Move touchedCard
+        //Move 'touchedCard'
         cards[touchedCardView.tag].center += offset
         
+        //Move cards that above and under 'touchedCard'
         if passedPoints > 0 && passedPoints <= cards.count {
-            //Change center of the cards that start moving after touchedCard pass the passedPoints
+            //Change center of the cards that start moving after 'touchedCard' pass the 'passedPoints'
             for passedPoint in 1...passedPoints {
                 let indexCardAboveTouchedCard = touchedCardView.tag - passedPoint
-                //Check if array of cards has card above of the touchedCard
+                //Check if array of cards has card above of the 'touchedCard'
                 if indexCardAboveTouchedCard >= 0 {
-                    //Set new position to card above touchedCard
+                    //Set new position to card above 'touchedCard'
                     cards[indexCardAboveTouchedCard].center += offset
                 }
                 let indexCardUnderTouchedCard = touchedCardView.tag + passedPoint
-                //Check if array of cards has card under of the touchedCard
+                //Check if array of cards has card under of the 'touchedCard'
                 if indexCardUnderTouchedCard < cards.count {
-                    //Set new position to card under touchedCard
+                    //Set new position to card under 'touchedCard'
                     cards[indexCardUnderTouchedCard].center += offset
                 }
             }
         }
-        //Save current translation to previousCardTranslation for calculate offset between current and previous card's center.
+        //Save current translation to 'previousCardTranslation' for calculate offset between current and previous card's center.
         previousCardTranslation = translation
     }
 
@@ -186,8 +206,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
             self.nextTask = Task()
             self.setBehind(edge: from, cards: self.cards)
             self.snapToDefaultCenterAnimation(items: self.cards)})
-        print("\(Task.currentStep) : Task.currentStep - complexity is currentStep/numberOfStepsToChangeRange")
-        print("\(score.value) : score.value in showNewCards")
     }
     
     func slideAway(cards: [Card], to direction: Direction) {
@@ -224,11 +242,8 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     
     func updateContentOf(cards: [Card]) {
         for card in cards {
-            //Put next task to card
-            card.label.text = nextTask.getLabel(to: card)
-            
-            //Update card's color
-            card.updateColor()
+            //Put text of the next task to the card.
+            card.label.text = nextTask.getLabel(for: card)
         }
     }
     
@@ -242,7 +257,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                         
                         //Set snap animation to default card's position
                         for card in self.cards {
-                            //FIXME: Need to refactor card.defaultCenter to the constraint's constant
                             card.center.x.constant = 0
                             card.center.y.constant = card.defaultCenter.y - self.view.center.y
                         }
@@ -251,7 +265,6 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
                        completion: nil)
     }
 
-    //Setting delegate to screen's view controllers for access to resetGame()
     override func prepare(for segue: UIStoryboardSegue, sender: AnyObject?) {
         switch segue.identifier!  {
             case "operationScreenSegue":
@@ -266,13 +279,13 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     
     func checkAnswer(touchedCard: Card.Item) {
         if currentTask.checkAnswer(touchedCard: touchedCard) {
-            print("Correct answer :)")
+            //Correct answer
             score.value += 1 
             time.reset()
             time.start()
             showNewCards(from: .left)
         } else {
-            print("Wrong answer :(")
+            //Wrong answer
             gameOver()
         }
     }
@@ -280,6 +293,7 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     func passTask() {
         if passes.value < 1 {
             self.performSegue(withIdentifier: "buyScreenSegue", sender: nil)
+            snapToDefaultCenterAnimation(items: cards)
         } else {
             time.reset()
             time.start()
@@ -289,21 +303,23 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     }
     
     func resetGame() {
-        print("New Game!")
-        Task.resetComplexity()
+        //New Game
+        Task.resetCapacity()
+        currentTask = Task()
         nextTask = Task()
         score.reset()
         time.reset()
-        showNewCards(from: .left)
+        Card.resetLayoutSettings()
+        createCards()
     }
     
     func gameOver() {
+        //Game Over
         time.stop()
-        print("Game Over!")
         
-        //FIXME: Workaround for show endScreen from any viewcontroller. Or we can dismiss all current modal viewcontrollers (by 'self.view.window?.rootViewController?.dismiss') and then present endScreen
+        //Show endScreen from any view controller.
         let endScreen = UIStoryboard(name: "Main", bundle: Bundle.main()).instantiateViewController(withIdentifier: "endScreenStoryboardID") as! EndScreenViewController
-        //FIXME: There is assume that CardsViewController is always rootViewController of the window, but it would be right if we use appDelegate.window?.rootViewController?
+        //Present End Screen from current view controller.
         let visibleViewController = self.presentedViewController ?? self
         visibleViewController.present(endScreen, animated: true, completion: {
             endScreen.delegate = self
@@ -315,11 +331,12 @@ class CardsViewController: UIViewController, UIGestureRecognizerDelegate, CardsV
     }
 }
 
+//Function for delay any closure
 public func delay (delay: Double, closure: () ->()) {
     DispatchQueue.main.after(when: .now() + delay, execute: closure)
 }
 
-//extensions to CGPoint
+//Extensions to CGPoint
 public func + (left: CGPoint, right: CGPoint) -> CGPoint {
     return CGPoint(x: left.x + right.x, y: left.y + right.y)
 }
