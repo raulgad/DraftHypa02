@@ -11,14 +11,12 @@ Swipe влево позволяет пропустить ход. После n-г
 
 <img src="Screenshots/change_operation.gif" width="320" />
 
-## Used libraries
-
-Нет.
-
 ## About implementation
 
+Сторонние библиотеки не используются.
+
 CardsViewController – root view controller.
-View карточек задаются программно в классе Cards, все остальные view задаются в Interface Builder.
+View главного экрана задаётся программно в классе Cards, все остальные экраны задаются в Interface Builder.
 
 Арифметические задания создаются в классе Task. За сложность задания (capacity) отвечает переменная rangeOfSummands, содержащая диапазон чисел, из которых создаются слагаемые выражения. Сложность задания меняется через каждые 5 шагов и задаётся в переменной numberOfStepsToChangeRange.
 
