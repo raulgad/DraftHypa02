@@ -1,4 +1,4 @@
-# DraftHypa02
+# Hypa
 Игра-тренажер для счёта (+, -, x, ÷) c настройкой длительности и сложности заданий. Swipe вправо по правильному ответу увеличивает счет.
 
 <img src="Screenshots/right_answer+end_screen.gif" width="320" />
